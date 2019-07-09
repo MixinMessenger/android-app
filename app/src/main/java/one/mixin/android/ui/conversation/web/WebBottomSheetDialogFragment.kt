@@ -76,6 +76,9 @@ class WebBottomSheetDialogFragment : MixinBottomSheetDialogFragment() {
     companion object {
         const val TAG = "WebBottomSheetDialogFragment"
 
+        const val POS_LOADING = 0
+        const val POS_WEB = 1
+
         private const val FILE_CHOOSER = 0x01
 
         private const val CONTEXT_MENU_ID_SCAN_IMAGE = 0x11
@@ -201,6 +204,8 @@ class WebBottomSheetDialogFragment : MixinBottomSheetDialogFragment() {
         contentView.close_iv.setOnClickListener {
             dialog.dismiss()
         }
+        Glide.with(this).load(R.drawable.ic_web_loading).into(contentView.loading_iv)
+
         contentView.chat_web_view.settings.javaScriptEnabled = true
         contentView.chat_web_view.settings.domStorageEnabled = true
         contentView.chat_web_view.settings.useWideViewPort = true
@@ -210,7 +215,7 @@ class WebBottomSheetDialogFragment : MixinBottomSheetDialogFragment() {
         contentView.chat_web_view.addJavascriptInterface(WebAppInterface(context!!, conversationId), "MixinContext")
         contentView.chat_web_view.webViewClient = WebViewClientImpl(object : WebViewClientImpl.OnPageFinishedListener {
             override fun onPageFinished() {
-                contentView.progress.visibility = View.GONE
+                contentView.va.displayedChild = POS_WEB
                 contentView.title_view.visibility = View.VISIBLE
             }
         }, conversationId, this.requireFragmentManager())
@@ -298,7 +303,7 @@ class WebBottomSheetDialogFragment : MixinBottomSheetDialogFragment() {
 
         name?.let {
             contentView.title_view.text = it
-            contentView.progress.visibility = View.GONE
+            contentView.va.displayedChild = POS_WEB
             contentView.title_view.visibility = View.VISIBLE
         }
 
@@ -397,6 +402,7 @@ class WebBottomSheetDialogFragment : MixinBottomSheetDialogFragment() {
         view.refresh.setOnClickListener {
             contentView.chat_web_view.clearCache(true)
             contentView.chat_web_view.reload()
+            contentView.va.displayedChild = POS_LOADING
             bottomSheet.dismiss()
         }
         view.open.setOnClickListener {
