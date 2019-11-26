@@ -27,6 +27,7 @@ import one.mixin.android.Constants
 import one.mixin.android.Constants.PAGE_SIZE
 import one.mixin.android.MixinApplication
 import one.mixin.android.R
+import one.mixin.android.api.request.RelationshipAction
 import one.mixin.android.api.request.RelationshipRequest
 import one.mixin.android.api.request.StickerAddRequest
 import one.mixin.android.crypto.Base64
@@ -49,6 +50,7 @@ import one.mixin.android.extension.notNullWithElse
 import one.mixin.android.extension.nowInUtc
 import one.mixin.android.extension.putString
 import one.mixin.android.job.AttachmentDownloadJob
+import one.mixin.android.job.ConversationJob
 import one.mixin.android.job.ConvertVideoJob
 import one.mixin.android.job.MixinJobManager
 import one.mixin.android.job.RefreshStickerAlbumJob
@@ -711,6 +713,30 @@ internal constructor(
                 }
             })
             list
+        }
+    }
+
+    suspend fun isSilenceInviter(conversationId: String) =
+        conversationRepository.isSilenceInviter(conversationId)
+
+    suspend fun exitGroupAndReport(conversationId: String) {
+        withContext(Dispatchers.IO) {
+            conversationRepository.getInviter(conversationId)?.let {
+                jobManager.addJobInBackground(
+                    ConversationJob(
+                        conversationId = conversationId,
+                        type = ConversationJob.TYPE_EXIT
+                    )
+                )
+                jobManager.addJobInBackground(
+                    UpdateRelationshipJob(
+                        RelationshipRequest(
+                            it.userId,
+                            RelationshipAction.BLOCK.name
+                        ), conversationId
+                    )
+                )
+            }
         }
     }
 }

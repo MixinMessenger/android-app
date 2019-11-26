@@ -22,9 +22,9 @@
         android:id="@+id/stranger_block_bn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:background="@drawable/bg_round_white"
         android:foreground="?attr/selectableItemBackground"
         android:gravity="center"
@@ -32,6 +32,7 @@
         android:text="@string/setting_block"
         android:textColor="@color/colorBlue"
         android:textSize="12sp"
+        android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@id/stranger_add_bn"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/stranger_info" />
@@ -40,9 +41,9 @@
         android:id="@+id/stranger_add_bn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
         android:background="@drawable/bg_round_white"
         android:foreground="?attr/selectableItemBackground"
         android:gravity="center"
@@ -50,8 +51,26 @@
         android:text="@string/contact_add_contact_title"
         android:textColor="@color/colorBlue"
         android:textSize="12sp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/stranger_block_bn"
+        app:layout_constraintTop_toBottomOf="@id/stranger_info" />
+
+    <TextView
+        android:id="@+id/stranger_exit_report_bn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_round_white"
+        android:foreground="?attr/selectableItemBackground"
+        android:gravity="center"
+        android:padding="12dp"
+        android:text="@string/exit_group_report_inviter"
+        android:textColor="@color/colorBlue"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/stranger_info" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

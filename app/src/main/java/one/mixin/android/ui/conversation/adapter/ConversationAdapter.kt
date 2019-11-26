@@ -170,7 +170,7 @@ class ConversationAdapter(
                         isFirst(position), selectSet.size > 0, isSelect(position), onItemListener)
                 }
                 STRANGER_TYPE -> {
-                    (holder as StrangerHolder).bind(onItemListener)
+                    (holder as StrangerHolder).bind(onItemListener, isGroup)
                 }
                 UNKNOWN_TYPE -> {
                     (holder as UnknownHolder).bind()
@@ -563,6 +563,8 @@ class ConversationAdapter(
         open fun onBlockClick() {}
 
         open fun onActionClick(action: String, userId: String) {}
+
+        open fun onExitAndReportClick() {}
 
         open fun onAudioClick(messageItem: MessageItem) {}
 

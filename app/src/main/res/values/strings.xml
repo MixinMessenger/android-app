@@ -529,6 +529,7 @@
     <string name="alert_key_contact_audio_call_message">ask you an audio call</string>
     <string name="unread">New Messages</string>
     <string name="stranger_from">The sender is not in your contacts</string>
+    <string name="stranger_inviter">The inviter is not in your contacts</string>
     <string name="notification_group">Group Notification</string>
     <string name="notification_message">Message Notification</string>
     <string name="notification_node">Messaging Node</string>
@@ -711,5 +712,6 @@
     <string name="multisig_receivers">Receivers</string>
     <string name="multisig_state_signed">This multisig link has already been signed by yourself, you can not make a duplicate operation.</string>
     <string name="multisig_state_unlocked">This multisig link has already been unlocked by someone, you can not make a duplicate operation.</string>
+    <string name="exit_group_report_inviter">Exit Group and Report inviter</string>
 </resources>
 

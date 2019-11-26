@@ -492,6 +492,13 @@ class ConversationFragment : LinkFragment(), OnKeyboardShownListener, OnKeyboard
                 }
             }
 
+            override fun onExitAndReportClick() {
+                lifecycleScope.launch {
+                    chatViewModel.exitGroupAndReport(conversationId)
+                    activity?.finish()
+                }
+            }
+
             override fun onActionClick(action: String, userId: String) {
                 if (action.startsWith("input:")) {
                     val msg = action.substring(6).trim()
@@ -1197,10 +1204,13 @@ class ConversationFragment : LinkFragment(), OnKeyboardShownListener, OnKeyboard
                         unreadTipCount += (list.size - chatAdapter.getRealItemCount())
                     }
                     chatViewModel.viewModelScope.launch {
-                        chatAdapter.hasBottomView = !isGroup &&
-                            !list.isEmpty() &&
-                            recipient?.relationship == UserRelationship.STRANGER.name &&
-                            chatViewModel.isSilence(conversationId, sender.userId)
+                        chatAdapter.hasBottomView = !list.isEmpty() &&
+                            (!isGroup &&
+                                recipient?.relationship == UserRelationship.STRANGER.name &&
+                                chatViewModel.isSilence(conversationId, sender.userId)) ||
+                            (isGroup && chatViewModel.isSilence(conversationId, sender.userId) &&
+                                chatViewModel.isSilenceInviter(conversationId)
+                                )
                     }
                     if (isFirstLoad && messageId == null && unreadCount > 0) {
                         chatAdapter.unreadMsgId = unreadMessageId

@@ -518,6 +518,7 @@
 
     <string name="unread">未读消息</string>
     <string name="stranger_from">他/她不是你的联系人</string>
+    <string name="stranger_inviter">邀请人不是你的联系人</string>
     <string name="notification_group">群组通知</string>
     <string name="notification_message">消息通知</string>
     <string name="notification_node">消息节点</string>
@@ -697,4 +698,5 @@
     <string name="multisig_receivers">交易接收人</string>
     <string name="multisig_state_signed">您已经对这笔交易进行了签名，您无法再次签名。</string>
     <string name="multisig_state_unlocked">这笔交易已经被其他人撤销了，您无法再次撤销。</string>
+    <string name="exit_group_report_inviter">退出群组并举报邀请人</string>
 </resources>

@@ -22,6 +22,7 @@ import one.mixin.android.db.ParticipantDao
 import one.mixin.android.db.batchMarkReadAndTake
 import one.mixin.android.di.type.DatabaseCategory
 import one.mixin.android.di.type.DatabaseCategoryEnum
+import one.mixin.android.extension.notNullWithElse
 import one.mixin.android.util.SINGLE_DB_THREAD
 import one.mixin.android.util.Session
 import one.mixin.android.vo.ChatMinimal
@@ -34,6 +35,7 @@ import one.mixin.android.vo.MessageItem
 import one.mixin.android.vo.MessageMinimal
 import one.mixin.android.vo.Participant
 import one.mixin.android.vo.SearchMessageItem
+import one.mixin.android.vo.UserRelationship
 
 @Singleton
 class ConversationRepository
@@ -270,6 +272,18 @@ internal constructor(
 
     suspend fun isSilence(conversationId: String, userId: String): Int =
         messageDao.isSilence(conversationId, userId)
+
+    suspend fun isSilenceInviter(conversationId: String): Boolean {
+        return getInviter(conversationId).notNullWithElse(
+            { it.relationship != UserRelationship.FRIEND.name },
+            false
+        )
+    }
+
+    suspend fun getInviter(conversationId: String) = messageDao.getInviter(
+        conversationId,
+        Session.getAccountId()!!
+    )
 
     suspend fun findNextAudioMessage(conversationId: String, createdAt: String, messageId: String) =
         messageDao.findNextAudioMessage(conversationId, createdAt, messageId)
