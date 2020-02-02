@@ -28,7 +28,6 @@ import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebSettings.FORCE_DARK_AUTO
-import android.webkit.WebSettings.FORCE_DARK_ON
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -47,10 +46,6 @@ import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.uber.autodispose.autoDispose
-import java.io.ByteArrayInputStream
-import java.io.FileInputStream
-import java.net.URISyntaxException
-import java.util.concurrent.TimeUnit
 import kotlinx.android.synthetic.main.fragment_web.view.*
 import kotlinx.android.synthetic.main.view_web_bottom.view.*
 import kotlinx.coroutines.launch
@@ -91,6 +86,10 @@ import org.jetbrains.anko.configuration
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
 import timber.log.Timber
+import java.io.ByteArrayInputStream
+import java.io.FileInputStream
+import java.net.URISyntaxException
+import java.util.concurrent.TimeUnit
 
 class WebBottomSheetDialogFragment : MixinBottomSheetDialogFragment() {
 
@@ -281,13 +280,6 @@ class WebBottomSheetDialogFragment : MixinBottomSheetDialogFragment() {
         contentView.chat_web_view.settings.domStorageEnabled = true
         contentView.chat_web_view.settings.useWideViewPort = true
         contentView.chat_web_view.settings.loadWithOverviewMode = true
-        supportsQ {
-            contentView.chat_web_view.settings.forceDark = if (isNightMode()) {
-                FORCE_DARK_ON
-            } else {
-                FORCE_DARK_AUTO
-            }
-        }
         contentView.chat_web_view.settings.mixedContentMode =
             WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
         contentView.chat_web_view.settings.mediaPlaybackRequiresUserGesture = false
