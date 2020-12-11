@@ -6,6 +6,7 @@ buildscript {
         ext.lifecycle_version = '2.3.0-beta01'
         ext.appcompatVersion = '1.2.0'
         ext.pagingVersion = '2.1.2'
+        ext.composeVersion = '1.0.0-alpha07'
         ext.collectionx = '1.1.0'
         ext.roomVersion = '2.3.0-SNAPSHOT'
         ext.navigationVersion = '2.3.2'
@@ -36,7 +37,7 @@ buildscript {
         ext.retrofitVersion = '2.9.0'
         ext.coroutineAdapterVersion = '0.9.2'
         ext.loggerVersion = '2.2.0'
-        ext.kotlin_version = '1.4.21'
+        ext.kotlinVersion = '1.4.21' // with compose alpha07 has bug
         ext.libphonenumberVersion = '8.12.14'
         ext.anko_version = '0.10.8'
         ext.coroutines_version = '1.4.2'
@@ -106,9 +107,9 @@ buildscript {
         maven { url 'https://androidx.dev/snapshots/builds/6964664/artifacts/repository/' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.1'
+        classpath "com.android.tools.build:gradle:4.2.0-alpha16"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
         classpath 'com.android.tools.build.jetifier:jetifier-processor:1.0.0-beta10'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
         classpath 'com.google.gms:google-services:4.3.4'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.4.1'
         classpath "com.google.dagger:hilt-android-gradle-plugin:${hiltVersion}"
@@ -127,7 +128,6 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
-
 
 def propOrEmpty(String name) {
     return hasProperty(name) ? getProperty(name) : ''
