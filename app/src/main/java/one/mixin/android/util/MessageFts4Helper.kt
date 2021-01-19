@@ -6,9 +6,7 @@ import androidx.room.ColumnInfo
 import one.mixin.android.Constants.Account.PREF_SYNC_FTS4_OFFSET
 import one.mixin.android.MixinApplication
 import one.mixin.android.db.MixinDatabase
-import one.mixin.android.extension.defaultSharedPreferences
 import one.mixin.android.extension.joinWhiteSpace
-import one.mixin.android.extension.putInt
 import one.mixin.android.vo.Message
 import one.mixin.android.vo.MessageFts4
 import one.mixin.android.vo.isContact
@@ -40,7 +38,7 @@ object MessageFts4Helper {
         val messageFts4Dao = MixinDatabase.getDatabase(ctx).messageFts4Dao()
 
         var done = false
-        var offset = ctx.defaultSharedPreferences.getInt(PREF_SYNC_FTS4_OFFSET, 0)
+        var offset = PropertyHelper.findValueByKey(ctx, PREF_SYNC_FTS4_OFFSET)?.toIntOrNull() ?: 0
         var handleCount = 0
         var start: Long
         val totalStart = System.currentTimeMillis()
@@ -58,7 +56,7 @@ object MessageFts4Helper {
             messageFts4Dao.insertListSuspend(messageFts4List)
             offset += queryMessageList.size
             handleCount += queryMessageList.size
-            ctx.defaultSharedPreferences.putInt(PREF_SYNC_FTS4_OFFSET, offset)
+            PropertyHelper.updateKeyValue(ctx, PREF_SYNC_FTS4_OFFSET, offset.toString())
             onProgressChanged?.invoke((offset.toFloat() / PRE_PROCESS_COUNT * 100).toInt())
             Timber.d("syncMessageFts4 handle 100 messages cost ${System.currentTimeMillis() - start}, offset: $offset")
 

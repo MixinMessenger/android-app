@@ -36,6 +36,7 @@ import one.mixin.android.db.MixinDatabaseMigrations.Companion.MIGRATION_32_33
 import one.mixin.android.db.MixinDatabaseMigrations.Companion.MIGRATION_33_34
 import one.mixin.android.db.MixinDatabaseMigrations.Companion.MIGRATION_34_35
 import one.mixin.android.db.MixinDatabaseMigrations.Companion.MIGRATION_35_36
+import one.mixin.android.db.MixinDatabaseMigrations.Companion.MIGRATION_37_38
 import one.mixin.android.db.MixinDatabaseMigrations.Companion.MIGRATION_36_37
 import one.mixin.android.db.MixinDatabaseMigrations.Companion.MIGRATION_37_38
 import one.mixin.android.util.GsonHelper
@@ -59,6 +60,7 @@ import one.mixin.android.vo.MessageMention
 import one.mixin.android.vo.Offset
 import one.mixin.android.vo.Participant
 import one.mixin.android.vo.ParticipantSession
+import one.mixin.android.vo.Property
 import one.mixin.android.vo.ResendMessage
 import one.mixin.android.vo.ResendSessionMessage
 import one.mixin.android.vo.SentSenderKey
@@ -101,7 +103,8 @@ import one.mixin.android.vo.User
         (Circle::class),
         (CircleConversation::class),
         (Trace::class),
-        (TranscriptMessage::class)
+        (TranscriptMessage::class),
+        (Property::class),
     ],
     version = CURRENT_VERSION
 )
@@ -133,6 +136,7 @@ abstract class MixinDatabase : RoomDatabase() {
     abstract fun circleConversationDao(): CircleConversationDao
     abstract fun traceDao(): TraceDao
     abstract fun transcriptDao(): TranscriptMessageDao
+    abstract fun propertyDao(): PropertyDao
 
     companion object {
         private var INSTANCE: MixinDatabase? = null

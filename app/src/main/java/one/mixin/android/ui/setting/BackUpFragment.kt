@@ -20,16 +20,15 @@ import one.mixin.android.Constants.BackUp.BACKUP_PERIOD
 import one.mixin.android.R
 import one.mixin.android.databinding.FragmentBackupBinding
 import one.mixin.android.extension.alertDialogBuilder
-import one.mixin.android.extension.defaultSharedPreferences
 import one.mixin.android.extension.fileSize
 import one.mixin.android.extension.getRelativeTimeSpan
 import one.mixin.android.extension.openPermissionSetting
-import one.mixin.android.extension.putInt
 import one.mixin.android.extension.toast
 import one.mixin.android.extension.viewDestroyed
 import one.mixin.android.job.BackupJob
 import one.mixin.android.job.MixinJobManager
 import one.mixin.android.ui.common.BaseFragment
+import one.mixin.android.util.PropertyHelper
 import one.mixin.android.util.backup.Result
 import one.mixin.android.util.backup.delete
 import one.mixin.android.util.backup.findBackup
@@ -55,7 +54,9 @@ class BackUpFragment : BaseFragment(R.layout.fragment_backup) {
             backupAuto.setOnClickListener {
                 showBackupDialog()
             }
-            backupAutoTv.text = options[defaultSharedPreferences.getInt(BACKUP_PERIOD, 0)]
+            lifecycleScope.launch {
+                binding.backupAutoTv.text = options[loadBackupPeriod()]
+            }
             titleView.leftIb.setOnClickListener { activity?.onBackPressed() }
             backupBn.setOnClickListener {
                 RxPermissions(requireActivity())
@@ -122,14 +123,19 @@ class BackUpFragment : BaseFragment(R.layout.fragment_backup) {
         requireContext().resources.getStringArray(R.array.backup_dialog_list)
     }
 
-    private fun showBackupDialog() {
+    private suspend fun loadBackupPeriod(): Int =
+        PropertyHelper.findValueByKey(requireContext(), BACKUP_PERIOD)?.toIntOrNull() ?: 0
+
+    private fun showBackupDialog() = lifecycleScope.launch {
         val builder = alertDialogBuilder()
         builder.setTitle(R.string.backup_dialog_title)
 
-        val checkedItem = defaultSharedPreferences.getInt(BACKUP_PERIOD, 0)
+        val checkedItem = loadBackupPeriod()
         builder.setSingleChoiceItems(options, checkedItem) { dialog, which ->
             binding.backupAutoTv.text = options[which]
-            defaultSharedPreferences.putInt(BACKUP_PERIOD, which)
+            lifecycleScope.launch {
+                PropertyHelper.updateKeyValue(requireContext(), BACKUP_PERIOD, which.toString())
+            }
             dialog.dismiss()
         }
         builder.setNegativeButton(android.R.string.cancel) { _, _ ->

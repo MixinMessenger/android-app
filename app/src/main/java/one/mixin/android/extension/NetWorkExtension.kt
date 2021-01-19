@@ -9,15 +9,16 @@ import one.mixin.android.Constants
 import one.mixin.android.Constants.Download.MOBILE_DEFAULT
 import one.mixin.android.Constants.Download.ROAMING_DEFAULT
 import one.mixin.android.Constants.Download.WIFI_DEFAULT
+import one.mixin.android.util.PropertyHelper
 import timber.log.Timber
 
-val autoDownloadPhoto: (value: Int) -> Boolean = {
+val autoDownloadPhoto: suspend (value: Int) -> Boolean = {
     it.or(0x110) == 0x111
 }
-val autoDownloadVideo: (value: Int) -> Boolean = {
+val autoDownloadVideo: suspend (value: Int) -> Boolean = {
     it.or(0x101) == 0x111
 }
-val autoDownloadDocument: (value: Int) -> Boolean = {
+val autoDownloadDocument: suspend (value: Int) -> Boolean = {
     it.or(0x011) == 0x111
 }
 
@@ -49,7 +50,7 @@ fun Context.isRoaming(): Boolean {
     return false
 }
 
-fun Context.differentNetWorkAction(wifiAction: () -> Unit, mobileAction: () -> Unit, roaming: () -> Unit) {
+suspend fun Context.differentNetWorkAction(wifiAction: suspend () -> Unit, mobileAction: suspend () -> Unit, roaming: suspend () -> Unit) {
     when {
         isConnectedToWiFi() -> {
             wifiAction()
@@ -63,7 +64,7 @@ fun Context.differentNetWorkAction(wifiAction: () -> Unit, mobileAction: () -> U
     }
 }
 
-fun Context.autoDownload(support: (value: Int) -> Boolean, action: () -> Unit) {
+suspend fun Context.autoDownload(support: suspend (value: Int) -> Boolean, action: () -> Unit) {
     if (hasWritePermission()) {
         differentNetWorkAction(
             {
@@ -85,6 +86,6 @@ fun Context.autoDownload(support: (value: Int) -> Boolean, action: () -> Unit) {
     }
 }
 
-fun Context.getAutoDownloadWifiValue() = defaultSharedPreferences.getInt(Constants.Download.AUTO_DOWNLOAD_WIFI, WIFI_DEFAULT)
-fun Context.getAutoDownloadMobileValue() = defaultSharedPreferences.getInt(Constants.Download.AUTO_DOWNLOAD_MOBILE, MOBILE_DEFAULT)
-fun Context.getAutoDownloadRoamingValue() = defaultSharedPreferences.getInt(Constants.Download.AUTO_DOWNLOAD_ROAMING, ROAMING_DEFAULT)
+suspend fun Context.getAutoDownloadWifiValue() = PropertyHelper.findValueByKey(this, Constants.Download.AUTO_DOWNLOAD_WIFI)?.toIntOrNull() ?: WIFI_DEFAULT
+suspend fun Context.getAutoDownloadMobileValue() = PropertyHelper.findValueByKey(this, Constants.Download.AUTO_DOWNLOAD_MOBILE)?.toIntOrNull() ?: MOBILE_DEFAULT
+suspend fun Context.getAutoDownloadRoamingValue() = PropertyHelper.findValueByKey(this, Constants.Download.AUTO_DOWNLOAD_ROAMING)?.toIntOrNull() ?: ROAMING_DEFAULT
