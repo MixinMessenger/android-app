@@ -10,7 +10,8 @@ import java.util.UUID
 @Entity(
     tableName = "conversations",
     indices = [
-        Index(value = arrayOf("pin_time", "last_message_created_at"))
+        Index(value = arrayOf("pin_time", "last_message_created_at")),
+        Index(value = arrayOf("category", "status", "pin_time", "created_at"))
     ],
 )
 open class Conversation(
