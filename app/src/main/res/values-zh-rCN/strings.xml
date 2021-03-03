@@ -920,6 +920,10 @@
     <string name="web_close">关闭</string>
     <string name="web_debug_enable">已开启 Web 调试</string>
     <string name="web_debug_disable">已关闭 Web 调试</string>
+    <!-- version check -->
+    <string name="version_title">新版本</string>
+    <string name="version_content">发现新版本更新</string>
+    <string name="version_update">更新</string>
     <!-- debug -->
     <string name="db_debug_enable">已开启 db 调试</string>
     <string name="db_debug_disable">已关闭 db 调试</string>

@@ -15,6 +15,7 @@ object Constants {
 
         const val GIPHY_URL = "http://api.giphy.com/v1/"
         const val FOURSQUARE_URL = "https://api.foursquare.com/v2/"
+        const val GITHUB_URL = "https://api.github.com/repos/MixinNetwork/android-app/"
     }
 
     object HelpLink {
@@ -36,6 +37,7 @@ object Constants {
         const val PREF_DELETE_MOBILE_CONTACTS = "pref_delete_mobile_contacts"
         const val PREF_FIAT_MAP = "pref_fiat_map"
         const val PREF_NOTIFICATION_ON = "pref_notification_on"
+        const val PREF_VERSION_CHECK = "pref_version_check"
         const val PREF_BATTERY_OPTIMIZE = "pref_battery_optimize"
         const val PREF_SYNC_CIRCLE = "pref_sync_circle"
         const val PREF_ATTACHMENT = "pref_attachment"

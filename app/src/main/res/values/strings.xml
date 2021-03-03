@@ -939,6 +939,10 @@
     <string name="web_close">close</string>
     <string name="web_debug_enable">Enable web debug</string>
     <string name="web_debug_disable">Disable web debug</string>
+    <!-- version check -->
+    <string name="version_title">New version</string>
+    <string name="version_content">There is a new version update</string>
+    <string name="version_update">Update</string>
     <!-- debug -->
     <string name="db_debug_enable">Enable db debug</string>
     <string name="db_debug_disable">Disable db debug</string>

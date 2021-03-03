@@ -21,6 +21,7 @@ import one.mixin.android.extension.nowInUtc
 import one.mixin.android.job.ConversationJob
 import one.mixin.android.job.ConversationJob.Companion.TYPE_CREATE
 import one.mixin.android.job.MixinJobManager
+import one.mixin.android.repository.AccountRepository
 import one.mixin.android.repository.ConversationRepository
 import one.mixin.android.repository.UserRepository
 import one.mixin.android.vo.Circle
@@ -33,12 +34,15 @@ import one.mixin.android.vo.ConversationStatus
 import one.mixin.android.vo.Participant
 import one.mixin.android.vo.User
 import one.mixin.android.vo.generateConversationId
+import one.mixin.android.vo.github.Latest
+import timber.log.Timber
 
 class ConversationListViewModel @ViewModelInject
 internal constructor(
     private val messageRepository: ConversationRepository,
     private val userRepository: UserRepository,
     private val conversationRepository: ConversationRepository,
+    private val accountRepository: AccountRepository,
     private val jobManager: MixinJobManager
 ) : ViewModel() {
 
@@ -186,4 +190,15 @@ internal constructor(
     suspend fun getCircleConversationCount(conversationId: String) = userRepository.getCircleConversationCount(conversationId)
 
     suspend fun findAppById(appId: String) = userRepository.findAppById(appId)
+
+    suspend fun latest(): Latest? {
+        return try {
+            return withContext(Dispatchers.IO) {
+                accountRepository.latest()
+            }
+        } catch (e: Exception) {
+            Timber.e(e)
+            null
+        }
+    }
 }

@@ -36,6 +36,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.coroutines.launch
 import one.mixin.android.Constants.Account.PREF_NOTIFICATION_ON
+import one.mixin.android.Constants.Account.PREF_VERSION_CHECK
 import one.mixin.android.Constants.CIRCLE.CIRCLE_ID
 import one.mixin.android.Constants.INTERVAL_48_HOURS
 import one.mixin.android.Constants.Mute.MUTE_1_HOUR
@@ -57,12 +58,15 @@ import one.mixin.android.extension.colorFromAttribute
 import one.mixin.android.extension.defaultSharedPreferences
 import one.mixin.android.extension.dp
 import one.mixin.android.extension.dpToPx
+import one.mixin.android.extension.isPlayStoreInstalled
 import one.mixin.android.extension.networkConnected
 import one.mixin.android.extension.notEmptyWithElse
 import one.mixin.android.extension.notNullWithElse
 import one.mixin.android.extension.nowInUtc
+import one.mixin.android.extension.openMarket
 import one.mixin.android.extension.openNotificationSetting
 import one.mixin.android.extension.openPermissionSetting
+import one.mixin.android.extension.putInt
 import one.mixin.android.extension.putLong
 import one.mixin.android.extension.renderMessage
 import one.mixin.android.extension.tapVibrate
@@ -159,23 +163,14 @@ class ConversationListFragment : LinkFragment() {
 
     override fun getContentView() = binding.root
 
+    private val headerBinding by lazy {
+        ItemListConversationHeaderBinding.inflate(layoutInflater, binding.messageRv, false)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navigationController = NavigationController(activity as MainActivity)
-        val headerBinding =
-            ItemListConversationHeaderBinding.inflate(layoutInflater, binding.messageRv, false)
-        messageAdapter.headerView = headerBinding.root.apply {
-            headerBinding.headerClose.setOnClickListener {
-                messageAdapter.setShowHeader(false, binding.messageRv)
-                requireContext().defaultSharedPreferences.putLong(
-                    PREF_NOTIFICATION_ON,
-                    System.currentTimeMillis()
-                )
-            }
-            headerBinding.headerSettings.setOnClickListener {
-                requireContext().openNotificationSetting()
-            }
-        }
+        messageAdapter.headerView = headerBinding.root
         binding.messageRv.adapter = messageAdapter
         binding.messageRv.itemAnimator = null
         binding.messageRv.setHasFixedSize(true)
@@ -465,17 +460,62 @@ class ConversationListFragment : LinkFragment() {
         bottomSheet.show()
     }
 
+    private var displayVersion = false
     override fun onResume() {
         super.onResume()
-        val notificationTime =
-            requireContext().defaultSharedPreferences.getLong(PREF_NOTIFICATION_ON, 0)
-        if (System.currentTimeMillis() - notificationTime > INTERVAL_48_HOURS) {
-            messageAdapter.setShowHeader(
-                !NotificationManagerCompat.from(requireContext()).areNotificationsEnabled(),
-                binding.messageRv
-            )
-        } else {
-            messageAdapter.setShowHeader(false, binding.messageRv)
+        lifecycleScope.launchWhenResumed {
+            val notificationTime =
+                requireContext().defaultSharedPreferences.getLong(PREF_NOTIFICATION_ON, 0)
+            if (!displayVersion && System.currentTimeMillis() - notificationTime > INTERVAL_48_HOURS && !NotificationManagerCompat.from(
+                    requireContext()
+                ).areNotificationsEnabled()
+            ) {
+                headerBinding.headerTitle.setText(R.string.notification_title)
+                headerBinding.headerContent.setText(R.string.notification_content)
+                headerBinding.headerSettings.setText(R.string.notification_settings)
+                headerBinding.headerClose.setOnClickListener {
+                    messageAdapter.setShowHeader(false, binding.messageRv)
+                    requireContext().defaultSharedPreferences.putLong(
+                        PREF_NOTIFICATION_ON,
+                        System.currentTimeMillis()
+                    )
+                }
+                headerBinding.headerSettings.setOnClickListener {
+                    requireContext().openNotificationSetting()
+                }
+                messageAdapter.setShowHeader(true, binding.messageRv)
+            } else {
+                if (!displayVersion) messageAdapter.setShowHeader(false, binding.messageRv)
+                if (!requireContext().isPlayStoreInstalled()) {
+                    messagesViewModel.latest()?.let { latest ->
+                        if (latest.hasNewVersion() && requireContext().defaultSharedPreferences.getInt(
+                                PREF_VERSION_CHECK,
+                                0
+                            ) < latest.versionCode!!
+                        ) {
+                            displayVersion = true
+                            headerBinding.headerTitle.setText(R.string.version_title)
+                            headerBinding.headerContent.setText(R.string.version_content)
+                            headerBinding.headerSettings.setText(R.string.version_update)
+                            headerBinding.headerClose.setOnClickListener {
+                                messageAdapter.setShowHeader(false, binding.messageRv)
+                                displayVersion = false
+                                requireContext().defaultSharedPreferences.putInt(
+                                    PREF_VERSION_CHECK,
+                                    latest.versionCode!!
+                                )
+                            }
+                            headerBinding.headerSettings.setOnClickListener {
+                                requireContext().openMarket()
+                            }
+                            messageAdapter.setShowHeader(true, binding.messageRv)
+                        } else {
+                            displayVersion = false
+                            messageAdapter.setShowHeader(false, binding.messageRv)
+                        }
+                    }
+                }
+            }
         }
     }
 

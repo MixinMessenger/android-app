@@ -23,6 +23,7 @@ import one.mixin.android.Constants
 import one.mixin.android.Constants.ALLOW_INTERVAL
 import one.mixin.android.Constants.API.FOURSQUARE_URL
 import one.mixin.android.Constants.API.GIPHY_URL
+import one.mixin.android.Constants.API.GITHUB_URL
 import one.mixin.android.Constants.API.URL
 import one.mixin.android.Constants.DNS
 import one.mixin.android.MixinApplication
@@ -40,6 +41,7 @@ import one.mixin.android.api.service.ConversationService
 import one.mixin.android.api.service.EmergencyService
 import one.mixin.android.api.service.FoursquareService
 import one.mixin.android.api.service.GiphyService
+import one.mixin.android.api.service.GithubService
 import one.mixin.android.api.service.MessageService
 import one.mixin.android.api.service.ProvisioningService
 import one.mixin.android.api.service.SignalKeyService
@@ -343,6 +345,23 @@ object AppModule {
             .client(client)
             .build()
         return retrofit.create(GiphyService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGithubService(httpLoggingInterceptor: HttpLoggingInterceptor?): GithubService {
+        val client = OkHttpClient.Builder().apply {
+            httpLoggingInterceptor?.let { interceptor ->
+                addNetworkInterceptor(interceptor)
+            }
+        }.build()
+        val retrofit = Retrofit.Builder()
+            .baseUrl(GITHUB_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
+            .client(client)
+            .build()
+        return retrofit.create(GithubService::class.java)
     }
 
     @Provides
