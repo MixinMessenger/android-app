@@ -61,6 +61,14 @@ fun ICategory.isAttachment(): Boolean = isData() || isImage() || isVideo() || is
 
 fun ICategory.isGroupCall() = type?.isGroupCallType() == true
 
+fun String.isGroupCallType() =
+    this == MessageCategory.KRAKEN_END.name ||
+        this == MessageCategory.KRAKEN_DECLINE.name ||
+        this == MessageCategory.KRAKEN_CANCEL.name ||
+        this == MessageCategory.KRAKEN_INVITE.name
+
+fun ICategory.supportSticker(): Boolean = isSticker() || isImage()
+
 fun ICategory.isCallMessage() =
     type == MessageCategory.WEBRTC_AUDIO_CANCEL.name ||
         type == MessageCategory.WEBRTC_AUDIO_DECLINE.name ||
@@ -89,5 +97,15 @@ fun ICategory.canRecall(): Boolean {
         type == MessageCategory.PLAIN_LIVE.name ||
         type == MessageCategory.PLAIN_POST.name ||
         type == MessageCategory.PLAIN_LOCATION.name ||
+        type == MessageCategory.ENCRYPTED_TEXT.name ||
+        type == MessageCategory.ENCRYPTED_IMAGE.name ||
+        type == MessageCategory.ENCRYPTED_VIDEO.name ||
+        type == MessageCategory.ENCRYPTED_STICKER.name ||
+        type == MessageCategory.ENCRYPTED_DATA.name ||
+        type == MessageCategory.ENCRYPTED_CONTACT.name ||
+        type == MessageCategory.ENCRYPTED_AUDIO.name ||
+        type == MessageCategory.ENCRYPTED_LIVE.name ||
+        type == MessageCategory.ENCRYPTED_POST.name ||
+        type == MessageCategory.ENCRYPTED_LOCATION.name ||
         type == MessageCategory.APP_CARD.name
 }

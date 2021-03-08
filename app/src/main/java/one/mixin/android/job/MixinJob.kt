@@ -29,6 +29,7 @@ import one.mixin.android.vo.MessageCategory
 import one.mixin.android.vo.MessageStatus
 import one.mixin.android.vo.Participant
 import one.mixin.android.vo.ParticipantSession
+import one.mixin.android.vo.ParticipantSessionSent
 import one.mixin.android.vo.SenderKeyStatus
 import one.mixin.android.vo.generateConversationChecksum
 import one.mixin.android.vo.isGroupConversation
@@ -113,9 +114,9 @@ abstract class MixinJob(
                 val noKeyList = requestSignalKeyUsers.filter { !keys.contains(it) }
                 if (noKeyList.isNotEmpty()) {
                     val sentSenderKeys = noKeyList.map {
-                        ParticipantSession(conversationId, it.user_id, it.session_id!!, SenderKeyStatus.UNKNOWN.ordinal)
+                        ParticipantSessionSent(conversationId, it.user_id, it.session_id!!, SenderKeyStatus.UNKNOWN.ordinal)
                     }
-                    participantSessionDao.updateList(sentSenderKeys)
+                    participantSessionDao.updateParticipantSessionSent(sentSenderKeys)
                 }
             }
         }
@@ -130,9 +131,9 @@ abstract class MixinJob(
         }
         if (result.success) {
             val sentSenderKeys = signalKeyMessages.map {
-                ParticipantSession(conversationId, it.recipient_id, it.sessionId!!, SenderKeyStatus.SENT.ordinal)
+                ParticipantSessionSent(conversationId, it.recipient_id, it.sessionId!!, SenderKeyStatus.SENT.ordinal)
             }
-            participantSessionDao.updateList(sentSenderKeys)
+            participantSessionDao.updateParticipantSessionSent(sentSenderKeys)
         }
     }
 
@@ -144,7 +145,7 @@ abstract class MixinJob(
             val preKeyBundle = createPreKeyBundle(keys[0])
             signalProtocol.processSession(recipientId, preKeyBundle)
         } else {
-            participantSessionDao.insert(ParticipantSession(conversationId, recipientId, sessionId, SenderKeyStatus.UNKNOWN.ordinal))
+            participantSessionDao.insertParticipantSessionSent(ParticipantSessionSent(conversationId, recipientId, sessionId, SenderKeyStatus.UNKNOWN.ordinal))
             return false
         }
 
@@ -158,7 +159,7 @@ abstract class MixinJob(
             return sendSenderKey(conversationId, recipientId, sessionId)
         }
         if (result.success) {
-            participantSessionDao.insert(ParticipantSession(conversationId, recipientId, sessionId, SenderKeyStatus.SENT.ordinal))
+            participantSessionDao.insertParticipantSessionSent(ParticipantSessionSent(conversationId, recipientId, sessionId, SenderKeyStatus.SENT.ordinal))
         }
         return result.success
     }
@@ -304,7 +305,7 @@ abstract class MixinJob(
 
             val sessionParticipants = response.data!!.participantSessions.let { resp ->
                 resp?.map {
-                    ParticipantSession(conversation.conversationId, it.userId, it.sessionId)
+                    ParticipantSession(conversation.conversationId, it.userId, it.sessionId, publicKey = it.publicKey)
                 }
             }
             sessionParticipants?.let {
@@ -321,7 +322,7 @@ abstract class MixinJob(
         }
     }
 
-    private fun syncConversation(conversationId: String) {
+    protected fun syncConversation(conversationId: String) {
         val response = conversationApi.getConversation(conversationId).execute().body()
         if (response != null && response.isSuccess) {
             response.data?.let { data ->
@@ -340,7 +341,7 @@ abstract class MixinJob(
     protected fun syncParticipantSession(conversationId: String, data: List<UserSession>) {
         participantSessionDao.deleteByStatus(conversationId)
         val remote = data.map {
-            ParticipantSession(conversationId, it.userId, it.sessionId)
+            ParticipantSession(conversationId, it.userId, it.sessionId, publicKey = it.publicKey)
         }
         if (remote.isEmpty()) {
             participantSessionDao.deleteByConversationId(conversationId)

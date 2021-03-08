@@ -27,6 +27,7 @@ class RefreshConversationJob(val conversationId: String) :
             return
         }
         val localData = participantDao.getRealParticipants(conversationId)
+
         val call = conversationApi.getConversation(conversationId).execute()
         val response = call.body()
         if (response != null && response.isSuccess) {

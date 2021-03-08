@@ -44,6 +44,7 @@ import one.mixin.android.api.service.MessageService
 import one.mixin.android.api.service.ProvisioningService
 import one.mixin.android.api.service.SignalKeyService
 import one.mixin.android.api.service.UserService
+import one.mixin.android.crypto.EncryptedProtocol
 import one.mixin.android.crypto.SignalProtocol
 import one.mixin.android.db.ConversationDao
 import one.mixin.android.db.FloodMessageDao
@@ -311,6 +312,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideSignalProtocol(app: Application) = SignalProtocol(app.applicationContext)
+
+    @Provides
+    @Singleton
+    fun provideEncryptedProtocol(app: Application) = EncryptedProtocol()
 
     @Provides
     @Singleton

@@ -25,7 +25,7 @@ data class ParticipantSession(
 ) {
     override fun equals(other: Any?): Boolean {
         return when (other) {
-            is ParticipantSession -> conversationId == other.conversationId && userId == other.userId && sessionId == other.sessionId
+            is ParticipantSession -> conversationId == other.conversationId && userId == other.userId && sessionId == other.sessionId && publicKey == other.publicKey
             else -> false
         }
     }
@@ -35,12 +35,32 @@ data class ParticipantSession(
     }
 }
 
+data class ParticipantSessionSent(
+    @ColumnInfo(name = "conversation_id")
+    val conversationId: String,
+    @ColumnInfo(name = "user_id")
+    val userId: String,
+    @ColumnInfo(name = "session_id")
+    val sessionId: String,
+    @ColumnInfo(name = "sent_to_server")
+    val sentToServer: Int? = null,
+)
+
+data class ParticipantSessionKey(
+    @ColumnInfo(name = "conversation_id")
+    val conversationId: String,
+    @ColumnInfo(name = "user_id")
+    val userId: String,
+    @ColumnInfo(name = "session_id")
+    val sessionId: String,
+    @ColumnInfo(name = "public_key")
+    val publicKey: String? = null,
+)
+
 fun generateConversationChecksum(devices: List<ParticipantSession>): String {
-    val sorted = devices.sortedWith(
-        Comparator<ParticipantSession> { a, b ->
-            a.sessionId.compareTo(b.sessionId)
-        }
-    )
+    val sorted = devices.sortedWith { a, b ->
+        a.sessionId.compareTo(b.sessionId)
+    }
     val d = sorted.joinToString("") { it.sessionId }
     return d.md5()
 }

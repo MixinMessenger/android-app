@@ -26,7 +26,7 @@ class ConvertVideoJob(
     private val conversationId: String,
     private val senderId: String,
     private val uri: Uri,
-    isPlain: Boolean,
+    isEncrypted: Boolean,
     private val messageId: String,
     createdAt: String? = null,
     private val replyMessage: MessageItem? = null
@@ -38,7 +38,7 @@ class ConvertVideoJob(
     }
 
     private val video: VideoEditedInfo? = getVideoModel(uri)
-    private val category = if (isPlain) MessageCategory.PLAIN_VIDEO.name else MessageCategory.SIGNAL_VIDEO.name
+    private val category = if (isEncrypted) MessageCategory.ENCRYPTED_VIDEO.name else MessageCategory.SIGNAL_VIDEO.name
     private val createdAt: String = createdAt ?: nowInUtc()
     override fun onAdded() {
         val mimeType = getMimeType(uri)

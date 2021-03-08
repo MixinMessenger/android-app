@@ -244,8 +244,8 @@ internal constructor(
 
     fun getConversationStorageUsage(): Flowable<List<ConversationStorageUsage>> = conversationDao.getConversationStorageUsage()
 
-    fun getMediaByConversationIdAndCategory(conversationId: String, signalCategory: String, plainCategory: String) =
-        messageDao.getMediaByConversationIdAndCategory(conversationId, signalCategory, plainCategory)
+    fun getMediaByConversationIdAndCategory(conversationId: String, signalCategory: String, plainCategory: String, encryptedCategory: String) =
+        messageDao.getMediaByConversationIdAndCategory(conversationId, signalCategory, plainCategory, encryptedCategory)
 
     suspend fun findMessageIndex(conversationId: String, messageId: String) =
         messageDao.findMessageIndex(conversationId, messageId)
@@ -389,10 +389,10 @@ internal constructor(
     fun observeConversationNameById(cid: String) = conversationDao.observeConversationNameById(cid)
 
     // DELETE
-    fun deleteMediaMessageByConversationAndCategory(conversationId: String, signalCategory: String, plainCategory: String) {
-        val count = messageDao.countDeleteMediaMessageByConversationAndCategory(conversationId, signalCategory, plainCategory)
+    fun deleteMediaMessageByConversationAndCategory(conversationId: String, signalCategory: String, plainCategory: String, encryptedCategory: String) {
+        val count = messageDao.countDeleteMediaMessageByConversationAndCategory(conversationId, signalCategory, plainCategory, encryptedCategory)
         repeat((count / DB_DELETE_LIMIT) + 1) {
-            messageDao.deleteMediaMessageByConversationAndCategory(conversationId, signalCategory, plainCategory, DB_DELETE_LIMIT)
+            messageDao.deleteMediaMessageByConversationAndCategory(conversationId, signalCategory, plainCategory, encryptedCategory, DB_DELETE_LIMIT)
         }
     }
 

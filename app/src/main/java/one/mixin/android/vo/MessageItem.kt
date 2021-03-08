@@ -114,7 +114,7 @@ data class MessageItem(
             unfinishedAttachment() ||
             isCallMessage() || isRecall()
 
-    fun unfinishedAttachment(): Boolean = !mediaDownloaded(this.mediaStatus) && (isData() || isImage() || isVideo() || isAudio())
+    private fun unfinishedAttachment(): Boolean = !mediaDownloaded(this.mediaStatus) && isAttachment()
 }
 
 fun create(type: String, createdAt: String? = null) = MessageItem(
@@ -127,29 +127,6 @@ fun create(type: String, createdAt: String? = null) = MessageItem(
     null, null, null, null, null, null, null, null,
     null, null, null, null, null, null, null, null, null, null
 )
-
-fun MessageItem.canNotReply() =
-    this.type == MessageCategory.SYSTEM_ACCOUNT_SNAPSHOT.name ||
-        this.type == MessageCategory.SYSTEM_CONVERSATION.name ||
-        (!mediaDownloaded(this.mediaStatus) && this.isMedia()) ||
-        isCallMessage() || isRecall()
-
-fun MessageItem.isCallMessage() =
-    type == MessageCategory.WEBRTC_AUDIO_CANCEL.name ||
-        type == MessageCategory.WEBRTC_AUDIO_DECLINE.name ||
-        type == MessageCategory.WEBRTC_AUDIO_END.name ||
-        type == MessageCategory.WEBRTC_AUDIO_BUSY.name ||
-        type == MessageCategory.WEBRTC_AUDIO_FAILED.name
-
-fun MessageItem.isGroupCall() = type?.isGroupCallType() == true
-
-fun MessageItem.supportSticker(): Boolean = isSticker() || isImage()
-
-fun String.isGroupCallType() =
-    this == MessageCategory.KRAKEN_END.name ||
-        this == MessageCategory.KRAKEN_DECLINE.name ||
-        this == MessageCategory.KRAKEN_CANCEL.name ||
-        this == MessageCategory.KRAKEN_INVITE.name
 
 fun MessageItem.isLottie() = assetType?.equals(Sticker.STICKER_TYPE_JSON, true) == true
 

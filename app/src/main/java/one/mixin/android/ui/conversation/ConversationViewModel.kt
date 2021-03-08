@@ -151,12 +151,12 @@ internal constructor(
     fun findUserById(conversationId: String): LiveData<User> =
         userRepository.findUserById(conversationId)
 
-    fun sendTextMessage(conversationId: String, sender: User, content: String, isPlain: Boolean) {
-        messenger.sendTextMessage(viewModelScope, conversationId, sender, content, isPlain)
+    fun sendTextMessage(conversationId: String, sender: User, content: String, isEncrypted: Boolean) {
+        messenger.sendTextMessage(viewModelScope, conversationId, sender, content, isEncrypted)
     }
 
-    fun sendPostMessage(conversationId: String, sender: User, content: String, isPlain: Boolean) {
-        messenger.sendPostMessage(conversationId, sender, content, isPlain)
+    fun sendPostMessage(conversationId: String, sender: User, content: String, isEncrypted: Boolean) {
+        messenger.sendPostMessage(conversationId, sender, content, isEncrypted)
     }
 
     fun sendAppCardMessage(conversationId: String, sender: User, content: String) {
@@ -168,13 +168,13 @@ internal constructor(
         sender: User,
         content: String,
         replyMessage: MessageItem,
-        isPlain: Boolean
+        isEncrypted: Boolean
     ) {
-        messenger.sendReplyTextMessage(conversationId, sender, content, replyMessage, isPlain)
+        messenger.sendReplyTextMessage(conversationId, sender, content, replyMessage, isEncrypted)
     }
 
-    fun sendAttachmentMessage(conversationId: String, sender: User, attachment: Attachment, isPlain: Boolean, replyMessage: MessageItem? = null) {
-        messenger.sendAttachmentMessage(conversationId, sender, attachment, isPlain, replyMessage)
+    fun sendAttachmentMessage(conversationId: String, sender: User, attachment: Attachment, isEncrypted: Boolean, replyMessage: MessageItem? = null) {
+        messenger.sendAttachmentMessage(conversationId, sender, attachment, isEncrypted, replyMessage)
     }
 
     fun sendAudioMessage(
@@ -184,39 +184,39 @@ internal constructor(
         file: File,
         duration: Long,
         waveForm: ByteArray,
-        isPlain: Boolean,
+        isEncrypted: Boolean,
         replyMessage: MessageItem? = null
     ) {
-        messenger.sendAudioMessage(conversationId, messageId, sender, file, duration, waveForm, isPlain, replyMessage)
+        messenger.sendAudioMessage(conversationId, messageId, sender, file, duration, waveForm, isEncrypted, replyMessage)
     }
 
     fun sendAudioMessage(
         conversationId: String,
         sender: User,
         audioMessagePayload: AudioMessagePayload,
-        isPlain: Boolean,
+        isEncrypted: Boolean,
         replyMessage: MessageItem? = null
     ) {
         val messageId = audioMessagePayload.messageId
         val file = File(audioMessagePayload.url)
         val duration = audioMessagePayload.duration
         val waveForm = audioMessagePayload.waveForm
-        messenger.sendAudioMessage(conversationId, messageId, sender, file, duration, waveForm, isPlain, replyMessage)
+        messenger.sendAudioMessage(conversationId, messageId, sender, file, duration, waveForm, isEncrypted, replyMessage)
     }
 
     fun sendStickerMessage(
         conversationId: String,
         sender: User,
         transferStickerData: StickerMessagePayload,
-        isPlain: Boolean
+        isEncrypted: Boolean
     ) {
-        messenger.sendStickerMessage(conversationId, sender, transferStickerData, isPlain)
+        messenger.sendStickerMessage(conversationId, sender, transferStickerData, isEncrypted)
     }
 
-    fun sendContactMessage(conversationId: String, sender: User, shareUserId: String, isPlain: Boolean, replyMessage: MessageItem? = null) {
+    fun sendContactMessage(conversationId: String, sender: User, shareUserId: String, isEncrypted: Boolean, replyMessage: MessageItem? = null) {
         viewModelScope.launch {
             val user = userRepository.suspendFindUserById(shareUserId)
-            messenger.sendContactMessage(conversationId, sender, shareUserId, user?.fullName, isPlain, replyMessage)
+            messenger.sendContactMessage(conversationId, sender, shareUserId, user?.fullName, isEncrypted, replyMessage)
         }
     }
 
@@ -224,25 +224,25 @@ internal constructor(
         conversationId: String,
         senderId: String,
         uri: Uri,
-        isPlain: Boolean,
+        isEncrypted: Boolean,
         messageId: String? = null,
         createdAt: String? = null,
         replyMessage: MessageItem? = null
     ) {
-        messenger.sendVideoMessage(conversationId, senderId, uri, isPlain, messageId, createdAt, replyMessage)
+        messenger.sendVideoMessage(conversationId, senderId, uri, isEncrypted, messageId, createdAt, replyMessage)
     }
 
     fun sendVideoMessage(
         conversationId: String,
         senderId: String,
         videoMessagePayload: VideoMessagePayload,
-        isPlain: Boolean,
+        isEncrypted: Boolean,
         replyMessage: MessageItem? = null
     ) {
         val uri = videoMessagePayload.url.toUri()
         val messageId = videoMessagePayload.messageId
         val createdAt = videoMessagePayload.createdAt
-        messenger.sendVideoMessage(conversationId, senderId, uri, isPlain, messageId, createdAt, replyMessage)
+        messenger.sendVideoMessage(conversationId, senderId, uri, isEncrypted, messageId, createdAt, replyMessage)
     }
 
     fun sendRecallMessage(conversationId: String, sender: User, list: List<MessageItem>) {
@@ -253,34 +253,34 @@ internal constructor(
         conversationId: String,
         sender: User,
         transferLiveData: LiveMessagePayload,
-        isPlain: Boolean
+        isEncrypted: Boolean
     ) {
-        messenger.sendLiveMessage(conversationId, sender, transferLiveData, isPlain)
+        messenger.sendLiveMessage(conversationId, sender, transferLiveData, isEncrypted)
     }
 
     fun sendGiphyMessage(
         conversationId: String,
         senderId: String,
         image: Image,
-        isPlain: Boolean,
+        isEncrypted: Boolean,
         previewUrl: String
     ) {
-        messenger.sendGiphyMessage(conversationId, senderId, image, isPlain, previewUrl)
+        messenger.sendGiphyMessage(conversationId, senderId, image, isEncrypted, previewUrl)
     }
 
-    fun sendLocationMessage(conversationId: String, senderId: String, location: LocationPayload, isPlain: Boolean) {
-        messenger.sendLocationMessage(conversationId, senderId, location, isPlain)
+    fun sendLocationMessage(conversationId: String, senderId: String, location: LocationPayload, isEncrypted: Boolean) {
+        messenger.sendLocationMessage(conversationId, senderId, location, isEncrypted)
     }
 
     fun sendImageMessage(
         conversationId: String,
         sender: User,
         uri: Uri,
-        isPlain: Boolean,
+        isEncrypted: Boolean,
         mime: String? = null,
         replyMessage: MessageItem? = null
     ): Int {
-        return messenger.sendImageMessage(conversationId, sender, uri, isPlain, mime, replyMessage)
+        return messenger.sendImageMessage(conversationId, sender, uri, isEncrypted, mime, replyMessage)
     }
 
     fun updateRelationship(request: RelationshipRequest) {

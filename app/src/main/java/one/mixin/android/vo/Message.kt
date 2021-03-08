@@ -171,10 +171,6 @@ class Message(
         get() = category
 }
 
-fun Message.isSignal(): Boolean {
-    return category.startsWith("SIGNAL_")
-}
-
 fun Message.isRepresentativeMessage(conversation: ConversationItem): Boolean {
     return conversation.category == ConversationCategory.CONTACT.name && conversation.ownerId != userId
 }
@@ -239,7 +235,7 @@ enum class MessageCategory {
     ENCRYPTED_AUDIO,
     ENCRYPTED_LIVE,
     ENCRYPTED_POST,
-    ENCRYPTED_LOCATION
+    ENCRYPTED_LOCATION,
 }
 
 fun String.isIllegalMessageCategory(): Boolean {

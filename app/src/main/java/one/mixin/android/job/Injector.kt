@@ -11,6 +11,7 @@ import one.mixin.android.MixinApplication
 import one.mixin.android.api.service.CircleService
 import one.mixin.android.api.service.ConversationService
 import one.mixin.android.api.service.UserService
+import one.mixin.android.crypto.EncryptedProtocol
 import one.mixin.android.crypto.SignalProtocol
 import one.mixin.android.crypto.db.RatchetSenderKeyDao
 import one.mixin.android.db.AppDao
@@ -86,6 +87,8 @@ open class Injector {
     lateinit var messageMentionDao: MessageMentionDao
     @Inject
     lateinit var signalProtocol: SignalProtocol
+    @Inject
+    lateinit var encryptedProtocol: EncryptedProtocol
     @Inject
     lateinit var ratchetSenderKeyDao: RatchetSenderKeyDao
     @Inject

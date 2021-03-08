@@ -8,5 +8,7 @@ data class UserSession(
     @SerializedName("session_id")
     val sessionId: String,
     @SerializedName("platform")
-    val platform: String?
+    val platform: String?,
+    @SerializedName("public_key")
+    val publicKey: String?,
 )

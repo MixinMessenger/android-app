@@ -30,6 +30,7 @@ import one.mixin.android.extension.autoDownloadDocument
 import one.mixin.android.extension.autoDownloadPhoto
 import one.mixin.android.extension.autoDownloadVideo
 import one.mixin.android.extension.base64Encode
+import one.mixin.android.extension.decodeBase64
 import one.mixin.android.extension.defaultSharedPreferences
 import one.mixin.android.extension.findLastUrl
 import one.mixin.android.extension.getDeviceId
@@ -37,6 +38,7 @@ import one.mixin.android.extension.getFilePath
 import one.mixin.android.extension.nowInUtc
 import one.mixin.android.extension.postOptimize
 import one.mixin.android.extension.putString
+import one.mixin.android.extension.toByteArray
 import one.mixin.android.job.BaseJob.Companion.PRIORITY_SEND_ATTACHMENT_MESSAGE
 import one.mixin.android.session.Session
 import one.mixin.android.util.ColorUtil
@@ -44,7 +46,6 @@ import one.mixin.android.util.GsonHelper
 import one.mixin.android.util.MessageFts4Helper
 import one.mixin.android.util.hyperlink.parsHyperlink
 import one.mixin.android.util.mention.parseMentionData
-import one.mixin.android.util.reportException
 import one.mixin.android.vo.AppButtonData
 import one.mixin.android.vo.AppCardData
 import one.mixin.android.vo.CircleConversation
@@ -112,6 +113,7 @@ import org.whispersystems.libsignal.NoSessionException
 import org.whispersystems.libsignal.SignalProtocolAddress
 import timber.log.Timber
 import java.io.File
+import java.io.IOException
 import java.util.UUID
 
 class DecryptMessage(private val lifecycleScope: CoroutineScope) : Injector() {
@@ -163,6 +165,8 @@ class DecryptMessage(private val lifecycleScope: CoroutineScope) : Injector() {
                 processPlainMessage(data)
             } else if (data.category.startsWith("SIGNAL_")) {
                 processSignalMessage(data)
+            } else if (data.category.startsWith("ENCRYPTED_")) {
+                processEncryptedMessage(data)
             } else if (data.category == MessageCategory.APP_BUTTON_GROUP.name) {
                 processAppButton(data)
             } else if (data.category == MessageCategory.APP_CARD.name) {
@@ -420,7 +424,7 @@ class DecryptMessage(private val lifecycleScope: CoroutineScope) : Injector() {
         syncUser(data.userId)
         when {
             data.category.endsWith("_TEXT") -> {
-                val plain = if (data.category == MessageCategory.PLAIN_TEXT.name) String(Base64.decode(plainText)) else plainText
+                val plain = tryDecodePlain(data.category == MessageCategory.PLAIN_TEXT.name, plainText)
                 var quoteMe = false
                 val message = generateMessage(data) { quoteMessageItem ->
                     if (quoteMessageItem == null) {
@@ -454,7 +458,7 @@ class DecryptMessage(private val lifecycleScope: CoroutineScope) : Injector() {
                 generateNotification(message, data.source, userMap, quoteMe || mentionMe)
             }
             data.category.endsWith("_POST") -> {
-                val plain = if (data.category == MessageCategory.PLAIN_POST.name) String(Base64.decode(plainText)) else plainText
+                val plain = tryDecodePlain(data.category == MessageCategory.PLAIN_POST.name, plainText)
                 val message = createPostMessage(
                     data.messageId,
                     data.conversationId,
@@ -470,7 +474,7 @@ class DecryptMessage(private val lifecycleScope: CoroutineScope) : Injector() {
                 generateNotification(message, data.source)
             }
             data.category.endsWith("_LOCATION") -> {
-                val plain = if (data.category == MessageCategory.PLAIN_LOCATION.name) String(Base64.decode(plainText)) else plainText
+                val plain = tryDecodePlain(data.category == MessageCategory.PLAIN_LOCATION.name, plainText)
                 if (checkLocationData(plain)) {
                     val message = createLocationMessage(data.messageId, data.conversationId, data.userId, data.category, plain, data.status, data.createdAt)
                     messageDao.insertAndNotifyConversation(message, conversationDao, accountId)
@@ -748,6 +752,22 @@ class DecryptMessage(private val lifecycleScope: CoroutineScope) : Injector() {
         }
     }
 
+    private fun processEncryptedMessage(data: BlazeMessageData) {
+        val privateKey = Session.getEd25519PrivateKey() ?: return
+        val sessionId = Session.getSessionId() ?: return
+        try {
+            val decryptedContent = encryptedProtocol.decryptMessage(privateKey, UUID.fromString(sessionId).toByteArray(), data.data.decodeBase64())
+            val plaintext = String(decryptedContent)
+            try {
+                processDecryptSuccess(data, plaintext)
+            } catch (e: JsonSyntaxException) {
+                insertInvalidMessage(data)
+            }
+        } catch (e: Exception) {
+            reportDecryptFailed(data, e, null)
+        }
+    }
+
     private fun processSignalMessage(data: BlazeMessageData) {
         if (data.category == MessageCategory.SIGNAL_KEY.name) {
             updateRemoteMessageStatus(data.messageId, MessageStatus.READ)
@@ -792,22 +812,7 @@ class DecryptMessage(private val lifecycleScope: CoroutineScope) : Injector() {
             }
         } catch (e: Exception) {
             Log.e(TAG, "decrypt failed " + data.messageId, e)
-            FirebaseCrashlytics.getInstance().log("Decrypt failed$data$resendMessageId")
-            reportException(e)
-            if (e !is NoSessionException) {
-                Bugsnag.beforeNotify {
-                    it.addToTab("Decrypt", "conversation", data.conversationId)
-                    it.addToTab("Decrypt", "message_id", data.messageId)
-                    it.addToTab("Decrypt", "user", data.userId)
-                    it.addToTab("Decrypt", "session", data.sessionId)
-                    it.addToTab("Decrypt", "data", data.data)
-                    it.addToTab("Decrypt", "category", data.category)
-                    it.addToTab("Decrypt", "created_at", data.createdAt)
-                    it.addToTab("Decrypt", "resend_message", resendMessageId ?: "")
-                    true
-                }
-                Bugsnag.notify(e)
-            }
+            reportDecryptFailed(data, e, resendMessageId)
 
             if (resendMessageId != null) {
                 return
@@ -823,6 +828,25 @@ class DecryptMessage(private val lifecycleScope: CoroutineScope) : Injector() {
                     requestResendKey(data.conversationId, data.userId, data.messageId, data.sessionId)
                 }
             }
+        }
+    }
+
+    private fun reportDecryptFailed(data: BlazeMessageData, e: Exception, resendMessageId: String?) {
+        FirebaseCrashlytics.getInstance().log("Decrypt failed$data$resendMessageId")
+        FirebaseCrashlytics.getInstance().recordException(e)
+        if (e !is NoSessionException) {
+            Bugsnag.beforeNotify {
+                it.addToTab("Decrypt", "conversation", data.conversationId)
+                it.addToTab("Decrypt", "message_id", data.messageId)
+                it.addToTab("Decrypt", "user", data.userId)
+                it.addToTab("Decrypt", "session", data.sessionId)
+                it.addToTab("Decrypt", "data", data.data)
+                it.addToTab("Decrypt", "category", data.category)
+                it.addToTab("Decrypt", "created_at", data.createdAt)
+                it.addToTab("Decrypt", "resend_message", resendMessageId ?: "")
+                true
+            }
+            Bugsnag.notify(e)
         }
     }
 
@@ -964,6 +988,15 @@ class DecryptMessage(private val lifecycleScope: CoroutineScope) : Injector() {
             Log.w(TAG, "Registering new pre keys...")
         }
     }
+
+    private fun tryDecodePlain(isPlain: Boolean, plainText: String) =
+        if (isPlain) {
+            try {
+                String(Base64.decode(plainText))
+            } catch (e: IOException) {
+                plainText
+            }
+        } else plainText
 
     private fun generateNotification(message: Message, source: String, userMap: Map<String, String>? = null, force: Boolean = false) {
         if (source == LIST_PENDING_MESSAGES) {

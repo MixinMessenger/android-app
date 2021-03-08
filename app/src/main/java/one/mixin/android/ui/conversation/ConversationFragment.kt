@@ -287,7 +287,7 @@ class ConversationFragment() :
 
     private var unreadTipCount: Int = 0
     private val chatAdapter: ConversationAdapter by lazy {
-        ConversationAdapter(requireActivity(), keyword, onItemListener, isGroup, !isPlainMessage(), isBot).apply {
+        ConversationAdapter(requireActivity(), keyword, onItemListener, isGroup, !isEncryptedMessage(), isBot).apply {
             registerAdapterDataObserver(chatAdapterDataObserver)
         }
     }
@@ -1771,7 +1771,7 @@ class ConversationFragment() :
         }
     }
 
-    private fun isPlainMessage(): Boolean {
+    private fun isEncryptedMessage(): Boolean {
         return if (isGroup) {
             false
         } else {
@@ -1787,7 +1787,7 @@ class ConversationFragment() :
                         conversationId,
                         sender,
                         uri,
-                        isPlainMessage(),
+                        isEncryptedMessage(),
                         mimeType,
                         getRelyMessage()
                     )
@@ -1810,7 +1810,7 @@ class ConversationFragment() :
                 conversationId,
                 sender.userId,
                 image,
-                isPlainMessage(),
+                isEncryptedMessage(),
                 previewUrl
             )
             binding.chatRv.postDelayed(
@@ -1838,7 +1838,7 @@ class ConversationFragment() :
                     file,
                     duration,
                     waveForm,
-                    isPlainMessage(),
+                    isEncryptedMessage(),
                     getRelyMessage()
                 )
                 scrollToDown()
@@ -1852,7 +1852,7 @@ class ConversationFragment() :
                 conversationId,
                 sender.userId,
                 uri,
-                isPlainMessage(),
+                isEncryptedMessage(),
                 replyMessage = getRelyMessage()
             )
             binding.chatRv.postDelayed(
@@ -1870,7 +1870,7 @@ class ConversationFragment() :
                 conversationId,
                 sender,
                 attachment,
-                isPlainMessage(),
+                isEncryptedMessage(),
                 getRelyMessage()
             )
 
@@ -1885,7 +1885,7 @@ class ConversationFragment() :
                 conversationId,
                 sender,
                 StickerMessagePayload(stickerId),
-                isPlainMessage()
+                isEncryptedMessage()
             )
             scrollToDown()
             markRead()
@@ -1894,7 +1894,7 @@ class ConversationFragment() :
 
     private fun sendContactMessage(userId: String) {
         createConversation {
-            chatViewModel.sendContactMessage(conversationId, sender, userId, isPlainMessage(), getRelyMessage())
+            chatViewModel.sendContactMessage(conversationId, sender, userId, isEncryptedMessage(), getRelyMessage())
             scrollToDown()
             markRead()
         }
@@ -1918,7 +1918,7 @@ class ConversationFragment() :
         if (message.isNotBlank()) {
             binding.chatControl.chatEt.setText("")
             createConversation {
-                chatViewModel.sendTextMessage(conversationId, sender, message, isPlainMessage())
+                chatViewModel.sendTextMessage(conversationId, sender, message, isEncryptedMessage())
                 scrollToDown()
                 markRead()
             }
@@ -1927,7 +1927,7 @@ class ConversationFragment() :
 
     private fun sendLocation(location: LocationPayload) {
         createConversation {
-            chatViewModel.sendLocationMessage(conversationId, sender.userId, location, isPlainMessage())
+            chatViewModel.sendLocationMessage(conversationId, sender.userId, location, isEncryptedMessage())
             scrollToDown()
             markRead()
         }
@@ -1942,7 +1942,7 @@ class ConversationFragment() :
                     sender,
                     message,
                     binding.chatControl.replyView.messageItem!!,
-                    isPlainMessage()
+                    isEncryptedMessage()
                 )
                 binding.chatControl.replyView.animateHeight(53.dp, 0)
                 binding.chatControl.replyView.messageItem = null

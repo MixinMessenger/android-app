@@ -26,6 +26,7 @@ import one.mixin.android.api.service.ConversationService
 import one.mixin.android.api.service.MessageService
 import one.mixin.android.api.service.SignalKeyService
 import one.mixin.android.api.service.UserService
+import one.mixin.android.crypto.EncryptedProtocol
 import one.mixin.android.crypto.SignalProtocol
 import one.mixin.android.db.AddressDao
 import one.mixin.android.db.AppDao
@@ -178,6 +179,9 @@ abstract class BaseJob(params: Params) : Job(params) {
     @Inject
     @Transient
     lateinit var signalProtocol: SignalProtocol
+    @Inject
+    @Transient
+    lateinit var encryptedProtocol: EncryptedProtocol
     @Transient
     @Inject
     lateinit var appDatabase: MixinDatabase

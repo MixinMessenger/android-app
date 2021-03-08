@@ -22,6 +22,7 @@ import one.mixin.android.util.GsonHelper
 import one.mixin.android.util.reportException
 import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.Message
+import one.mixin.android.vo.isPlain
 import one.mixin.android.vo.isVideo
 import one.mixin.android.websocket.AttachmentMessagePayload
 import org.jetbrains.anko.getStackTraceString
@@ -115,12 +116,8 @@ class SendAttachmentMessageJob(
         )
     }
 
-    private fun isPlain(): Boolean {
-        return message.category.startsWith("PLAIN_")
-    }
-
     private fun processAttachment(attachResponse: AttachmentResponse): Boolean {
-        val key = if (isPlain()) {
+        val key = if (message.isPlain()) {
             null
         } else {
             Util.getSecretBytes(64)
@@ -138,7 +135,7 @@ class SendAttachmentMessageJob(
                 message.mediaMimeType,
                 inputStream,
                 message.mediaSize!!,
-                if (isPlain()) {
+                if (message.isPlain()) {
                     null
                 } else {
                     AttachmentCipherOutputStreamFactory(key, null)
@@ -153,7 +150,7 @@ class SendAttachmentMessageJob(
                 RxBus.publish(loadingEvent(message.id, pg))
             }
         val digest = try {
-            if (isPlain()) {
+            if (message.isPlain()) {
                 uploadPlainAttachment(attachResponse.upload_url!!, message.mediaSize, attachmentData)
                 null
             } else {
