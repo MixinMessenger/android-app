@@ -29,7 +29,6 @@ import one.mixin.android.extension.putInt
 import one.mixin.android.extension.realSize
 import one.mixin.android.widget.FloatingAvatarsView
 import kotlin.math.abs
-import kotlin.math.min
 
 class FloatingWebClip(private var isNightMode: Boolean) {
     companion object {
@@ -125,12 +124,14 @@ class FloatingWebClip(private var isNightMode: Boolean) {
 
     private fun updateSize(count: Int) {
         if (!isShown) return
-        windowLayoutParams.width = if (count > 3) {
-            (64 + 13.3 + 6.6 * 3).toInt().dp
-        } else {
-            (64 + 13.3 * min((count - 1), 2)).toInt().dp
+        windowLayoutParams.width = when (count) {
+            1 -> 64.dp
+            2 -> 80.dp
+            3 -> 92.dp
+            else -> 98.dp
         }
         windowLayoutParams.height = 64.dp
+        setBackground(count)
         windowManager.updateViewLayout(windowView, windowLayoutParams)
     }
 
@@ -211,16 +212,14 @@ class FloatingWebClip(private var isNightMode: Boolean) {
         windowView.addView(
             FrameLayout(activity).apply {
                 if (isNightMode) {
-                    setBackgroundResource(R.drawable.bg_floating_shadow_night)
+                    setBackgroundResource(R.drawable.bg_floating_shadow_night_0)
                 } else {
-                    setBackgroundResource(R.drawable.bg_floating_shadow)
+                    setBackgroundResource(R.drawable.bg_floating_shadow_0)
                 }
                 addView(
                     avatarsView,
                     FrameLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
                         gravity = Gravity.CENTER
-                        marginStart = 6.dp
-                        marginEnd = 6.dp
                     }
                 )
             },
@@ -232,6 +231,24 @@ class FloatingWebClip(private var isNightMode: Boolean) {
         if (!isShown) return
         isShown = false
         windowManager.removeView(windowView)
+    }
+
+    private fun setBackground(count: Int) {
+        val child = windowView.getChildAt(0)
+        child.setBackgroundResource(when (count) {
+            1 -> {
+                if (isNightMode) R.drawable.bg_floating_shadow_night_0 else R.drawable.bg_floating_shadow_0
+            }
+            2 -> {
+                if (isNightMode) R.drawable.bg_floating_shadow_night_1 else R.drawable.bg_floating_shadow_1
+            }
+            3 -> {
+                if (isNightMode) R.drawable.bg_floating_shadow_night_2 else R.drawable.bg_floating_shadow_2
+            }
+            else -> {
+                if (isNightMode) R.drawable.bg_floating_shadow_night_3 else R.drawable.bg_floating_shadow_3
+            }
+        })
     }
 
     private fun initWindowLayoutParams() {
