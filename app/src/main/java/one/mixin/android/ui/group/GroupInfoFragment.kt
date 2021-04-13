@@ -121,7 +121,7 @@ class GroupInfoFragment : BaseFragment(R.layout.fragment_group_info) {
                                     openChat(participant.toUser())
                                 }
                                 1 -> {
-                                    UserBottomSheetDialogFragment.newInstance(participant.toUser(), conversationId).showNow(
+                                    UserBottomSheetDialogFragment.newInstance(participant.toUser(), conversationId)?.showNow(
                                         parentFragmentManager,
                                         UserBottomSheetDialogFragment.TAG
                                     )
@@ -178,8 +178,7 @@ class GroupInfoFragment : BaseFragment(R.layout.fragment_group_info) {
                                 openChat(participant.toUser())
                             }
                             R.id.view -> {
-                                UserBottomSheetDialogFragment.newInstance(participant.toUser(), conversationId)
-                                    .showNow(parentFragmentManager, UserBottomSheetDialogFragment.TAG)
+                                UserBottomSheetDialogFragment.newInstance(participant.toUser(), conversationId)?.showNow(parentFragmentManager, UserBottomSheetDialogFragment.TAG)
                             }
                             R.id.remove -> {
                                 showConfirmDialog(

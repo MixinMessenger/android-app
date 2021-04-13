@@ -156,7 +156,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search) {
                                     )
                                 } else {
                                     searchViewModel.insertUser(user = data)
-                                    UserBottomSheetDialogFragment.newInstance(data).showNow(parentFragmentManager, UserBottomSheetDialogFragment.TAG)
+                                    UserBottomSheetDialogFragment.newInstance(data)?.showNow(parentFragmentManager, UserBottomSheetDialogFragment.TAG)
                                 }
                             }
                             r.errorCode == ErrorHandler.NOT_FOUND -> context?.toast(R.string.error_user_not_found)

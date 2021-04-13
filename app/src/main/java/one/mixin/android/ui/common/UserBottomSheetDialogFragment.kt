@@ -83,6 +83,7 @@ import one.mixin.android.vo.ShareCategory
 import one.mixin.android.vo.User
 import one.mixin.android.vo.UserRelationship
 import one.mixin.android.vo.generateConversationId
+import one.mixin.android.vo.notMessengerUser
 import one.mixin.android.vo.showVerifiedOrBot
 import one.mixin.android.webrtc.outgoingCall
 import one.mixin.android.websocket.ContactMessagePayload
@@ -97,13 +98,18 @@ class UserBottomSheetDialogFragment : MixinScrollableBottomSheetDialogFragment()
     companion object {
         const val TAG = "UserBottomSheetDialogFragment"
 
+        @SuppressLint("StaticFieldLeak")
         private var instant: UserBottomSheetDialogFragment? = null
-        fun newInstance(user: User, conversationId: String? = null): UserBottomSheetDialogFragment {
+
+        fun newInstance(user: User, conversationId: String? = null): UserBottomSheetDialogFragment? {
             try {
                 instant?.dismiss()
             } catch (ignored: IllegalStateException) {
             }
             instant = null
+            if (user.notMessengerUser()) {
+                return null
+            }
             return UserBottomSheetDialogFragment().apply {
                 arguments = Bundle().apply {
                     putParcelable(ARGS_USER, user)
@@ -346,7 +352,7 @@ class UserBottomSheetDialogFragment : MixinScrollableBottomSheetDialogFragment()
                         ProfileBottomSheetDialogFragment.newInstance()
                             .showNow(parentFragmentManager, TAG)
                     } else {
-                        newInstance(it).showNow(parentFragmentManager, TAG)
+                        newInstance(it)?.showNow(parentFragmentManager, TAG)
                     }
                 }
                 dismiss()

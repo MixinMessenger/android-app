@@ -207,7 +207,7 @@ class BotManagerBottomSheetDialogFragment : BottomSheetDialogFragment(), BotDock
             lifecycleScope.launch {
                 botManagerViewModel.findUserByAppId(app.appId)?.let { user ->
                     UserBottomSheetDialogFragment.newInstance(user)
-                        .show(parentFragmentManager, UserBottomSheetDialogFragment.TAG)
+                        ?.show(parentFragmentManager, UserBottomSheetDialogFragment.TAG)
                 }
             }
         } else if (app is Bot) {

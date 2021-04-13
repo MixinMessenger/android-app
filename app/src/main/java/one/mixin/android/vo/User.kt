@@ -92,6 +92,10 @@ fun createSystemUser(): User {
     return User(SYSTEM_USER, "0", "", "", "0", null, null, false, null, null)
 }
 
+fun User.notMessengerUser(): Boolean {
+    return identityNumber == "0"
+}
+
 fun User.showVerifiedOrBot(verifiedView: View, botView: View) {
     when {
         isVerified == true -> {

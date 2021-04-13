@@ -301,13 +301,13 @@ class TransactionsFragment : BaseTransactionsFragment<PagedList<SnapshotItem>>()
             } ?: return@launch
 
             val f = UserBottomSheetDialogFragment.newInstance(user)
-            f.showUserTransactionAction = {
+            f?.showUserTransactionAction = {
                 view?.navigate(
                     R.id.action_transactions_to_user_transactions,
                     Bundle().apply { putString(Constants.ARGS_USER_ID, userId) }
                 )
             }
-            f.show(parentFragmentManager, UserBottomSheetDialogFragment.TAG)
+            f?.show(parentFragmentManager, UserBottomSheetDialogFragment.TAG)
         }
     }
 

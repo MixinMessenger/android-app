@@ -38,7 +38,7 @@ class SettingBlockedFragment : BaseFragment(R.layout.fragment_blocked) {
         adapter.callback = object : Callback {
             override fun onClick(user: User) {
                 UserBottomSheetDialogFragment.newInstance(user)
-                    .show(parentFragmentManager, UserBottomSheetDialogFragment.TAG)
+                    ?.show(parentFragmentManager, UserBottomSheetDialogFragment.TAG)
             }
         }
         binding.apply {
