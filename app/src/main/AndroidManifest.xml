@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -35,7 +35,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:hasFragileUserData="true"
-        android:requestLegacyExternalStorage="true"
         tools:ignore="LockedOrientationActivity,UnusedAttribute"
         android:extractNativeLibs="true"
         tools:replace="allowBackup">
