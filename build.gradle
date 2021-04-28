@@ -47,7 +47,7 @@ buildscript {
         ext.firebaseMLVersion = '24.0.3'
         ext.mlkitBarcodeVersion = '16.1.1'
         ext.jwtVersion = '0.9.1'
-        ext.zxingVersion = '3.3.3'
+        ext.zxingVersion = '3.4.1'
         ext.rxpermissionsVersion = '0.10.3'
         ext.ucropVersion = '2.2.4'
         ext.countryPickerVersion = '1.0.13'
