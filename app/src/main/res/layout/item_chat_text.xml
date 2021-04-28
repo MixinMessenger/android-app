@@ -44,7 +44,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:textColor="?attr/text_primary"
-            android:textSize="14sp"
+            android:textSize="15sp"
             tools:text="message" />
 
          <include
