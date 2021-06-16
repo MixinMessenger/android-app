@@ -1,10 +1,10 @@
 package one.mixin.android.crypto.storage
 
 import android.content.Context
-import com.bugsnag.android.Bugsnag
 import one.mixin.android.crypto.db.SenderKeyDao
 import one.mixin.android.crypto.db.SignalDatabase
 import one.mixin.android.crypto.vo.SenderKey
+import one.mixin.android.util.bugsnag
 import org.whispersystems.libsignal.groups.SenderKeyName
 import org.whispersystems.libsignal.groups.state.SenderKeyRecord
 import org.whispersystems.libsignal.groups.state.SenderKeyStore
@@ -28,7 +28,7 @@ class MixinSenderKeyStore(ctx: Context) : SenderKeyStore {
                     return SenderKeyRecord(senderKey.record)
                 }
             } catch (e: IOException) {
-                Bugsnag.notify(e)
+                bugsnag?.notify(e)
                 e.printStackTrace()
             }
 

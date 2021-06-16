@@ -3,7 +3,6 @@ package one.mixin.android.websocket
 import android.annotation.SuppressLint
 import android.app.Application
 import android.util.Log
-import com.bugsnag.android.Bugsnag
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.gson.Gson
 import io.reactivex.Observable
@@ -37,6 +36,7 @@ import one.mixin.android.session.Session
 import one.mixin.android.util.ErrorHandler.Companion.AUTHENTICATION
 import one.mixin.android.util.GzipException
 import one.mixin.android.util.SINGLE_DB_THREAD
+import one.mixin.android.util.bugsnag
 import one.mixin.android.util.reportException
 import one.mixin.android.vo.FloodMessage
 import one.mixin.android.vo.LinkState
@@ -208,7 +208,7 @@ class ChatWebSocket(
                     }
                 }
             } catch (e: GzipException) {
-                Bugsnag.notify(e)
+                bugsnag?.notify(e)
             }
         }
     }
@@ -260,7 +260,7 @@ class ChatWebSocket(
                 client!!.close(code, "OK")
             }
         } catch (e: Exception) {
-            Bugsnag.notify(e)
+            bugsnag?.notify(e)
         } finally {
             client = null
             webSocketObserver?.onSocketClose()

@@ -353,7 +353,8 @@
                 android:value="androidx.startup" />
             <meta-data
                 android:name="one.mixin.android.startup.BugsnagInitializer"
-                android:value="androidx.startup" />
+                android:value="androidx.startup"
+                tools:node="remove" />
             <meta-data
                 android:name="one.mixin.android.startup.AndroidThreeTenInitializer"
                 android:value="androidx.startup" />

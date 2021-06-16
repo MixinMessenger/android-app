@@ -21,7 +21,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.room.util.DBUtil
 import androidx.work.WorkManager
-import com.bugsnag.android.Bugsnag
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.safetynet.SafetyNet
@@ -123,6 +122,7 @@ import one.mixin.android.util.BiometricUtil
 import one.mixin.android.util.ErrorHandler
 import one.mixin.android.util.ErrorHandler.Companion.errorHandler
 import one.mixin.android.util.RootUtil
+import one.mixin.android.util.bugsnag
 import one.mixin.android.vo.Conversation
 import one.mixin.android.vo.ConversationCategory
 import one.mixin.android.vo.ConversationStatus
@@ -250,7 +250,7 @@ class MainActivity : BlazeBaseActivity() {
         }
 
         val account = Session.getAccount()
-        Bugsnag.setUser(account?.userId, account?.identityNumber, account?.fullName)
+        bugsnag?.setUser(account?.userId, account?.identityNumber, account?.fullName)
         account?.let {
             FirebaseCrashlytics.getInstance().setUserId(it.userId)
             AppCenter.setUserId(it.userId)
@@ -405,7 +405,7 @@ class MainActivity : BlazeBaseActivity() {
                 .subscribe({}, {})
         }
         task.addOnFailureListener { e ->
-            Bugsnag.notify(e)
+            bugsnag?.notify(e)
         }
     }
 

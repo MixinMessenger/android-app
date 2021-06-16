@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.NotificationManager
 import android.util.Log
 import androidx.collection.arrayMapOf
-import com.bugsnag.android.Bugsnag
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
@@ -42,6 +41,7 @@ import one.mixin.android.session.Session
 import one.mixin.android.util.ColorUtil
 import one.mixin.android.util.GsonHelper
 import one.mixin.android.util.MessageFts4Helper
+import one.mixin.android.util.bugsnag
 import one.mixin.android.util.hyperlink.parsHyperlink
 import one.mixin.android.util.mention.parseMentionData
 import one.mixin.android.util.reportException
@@ -940,7 +940,7 @@ class DecryptMessage(private val lifecycleScope: CoroutineScope) : Injector() {
             FirebaseCrashlytics.getInstance().log("Decrypt failed$data$resendMessageId")
             reportException(e)
             if (e !is NoSessionException) {
-                Bugsnag.beforeNotify {
+                bugsnag?.beforeNotify {
                     it.addToTab("Decrypt", "conversation", data.conversationId)
                     it.addToTab("Decrypt", "message_id", data.messageId)
                     it.addToTab("Decrypt", "user", data.userId)
@@ -951,7 +951,7 @@ class DecryptMessage(private val lifecycleScope: CoroutineScope) : Injector() {
                     it.addToTab("Decrypt", "resend_message", resendMessageId ?: "")
                     true
                 }
-                Bugsnag.notify(e)
+                bugsnag?.notify(e)
             }
 
             if (resendMessageId != null) {

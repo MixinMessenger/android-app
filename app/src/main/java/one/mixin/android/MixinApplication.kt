@@ -9,6 +9,7 @@ import android.webkit.WebStorage
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraXConfig
 import androidx.hilt.work.HiltWorkerFactory
+import androidx.startup.AppInitializer
 import androidx.work.Configuration
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
@@ -33,6 +34,7 @@ import one.mixin.android.extension.putBoolean
 import one.mixin.android.job.BlazeMessageService
 import one.mixin.android.job.MixinJobManager
 import one.mixin.android.session.Session
+import one.mixin.android.startup.BugsnagInitializer
 import one.mixin.android.ui.PipVideoView
 import one.mixin.android.ui.call.CallActivity
 import one.mixin.android.ui.landing.InitializeActivity
@@ -118,13 +120,14 @@ open class MixinApplication :
         appContext = applicationContext
         Lingver.init(this)
         RxJavaPlugins.setErrorHandler {}
-        AppCenter.start(
-            this,
-            BuildConfig.APPCENTER_API_KEY,
-            Analytics::class.java,
-            Crashes::class.java
-        )
-
+        if (BuildConfig.APPCENTER_API_KEY.isNotEmpty()) {
+            AppCenter.start(
+                this,
+                BuildConfig.APPCENTER_API_KEY,
+                Analytics::class.java,
+                Crashes::class.java
+            )
+        }
         registerComponentCallbacks(MemoryCallback())
     }
 
@@ -133,6 +136,10 @@ open class MixinApplication :
             Timber.plant(Timber.DebugTree())
         } else {
             Timber.plant(FileLogTree())
+        }
+        if (BuildConfig.BUGSNAG_API_KEY.isNotEmpty()) {
+            AppInitializer.getInstance(this)
+                .initializeComponent(BugsnagInitializer::class.java)
         }
     }
 

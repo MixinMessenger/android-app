@@ -42,7 +42,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
-import com.bugsnag.android.Bugsnag
 import com.jakewharton.rxbinding3.view.clicks
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.uber.autodispose.android.autoDispose
@@ -52,6 +51,7 @@ import one.mixin.android.databinding.ViewChatControlBinding
 import one.mixin.android.extension.fadeIn
 import one.mixin.android.extension.fadeOut
 import one.mixin.android.extension.openPermissionSetting
+import one.mixin.android.util.bugsnag
 import one.mixin.android.widget.DraggableRecyclerView.Companion.FLING_DOWN
 import one.mixin.android.widget.DraggableRecyclerView.Companion.FLING_NONE
 import one.mixin.android.widget.DraggableRecyclerView.Companion.FLING_UP
@@ -905,7 +905,7 @@ class ChatControlView : LinearLayout, ActionMode.Callback {
                         Manifest.permission.WRITE_EXTERNAL_STORAGE
                     )
                     .autoDispose(this)
-                    .subscribe({}, { Bugsnag.notify(it) })
+                    .subscribe({}, { bugsnag?.notify(it) })
                 return@Runnable
             }
             callback.onRecordStart(sendStatus == AUDIO)

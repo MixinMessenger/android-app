@@ -17,7 +17,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bugsnag.android.Bugsnag
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.uber.autodispose.autoDispose
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,6 +36,7 @@ import one.mixin.android.ui.conversation.ConversationViewModel
 import one.mixin.android.ui.conversation.StickerFragment.Companion.ARGS_ALBUM_ID
 import one.mixin.android.ui.conversation.StickerFragment.Companion.PADDING
 import one.mixin.android.ui.conversation.adapter.StickerSpacingItemDecoration
+import one.mixin.android.util.bugsnag
 import one.mixin.android.util.viewBinding
 import one.mixin.android.vo.Sticker
 import org.jetbrains.anko.dip
@@ -112,7 +112,7 @@ class StickerManagementFragment : BaseFragment() {
                                 }
                             },
                             {
-                                Bugsnag.notify(it)
+                                bugsnag?.notify(it)
                             }
                         )
                 }
