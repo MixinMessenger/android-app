@@ -70,6 +70,8 @@ class ChatControlView : LinearLayout, ActionMode.Callback {
 
         const val RECORD_DELAY = 200L
         const val RECORD_TIP_MILLIS = 2000L
+
+        const val LONG_CLICK_DELAY = 400L
     }
 
     private enum class STATUS {
@@ -102,6 +104,11 @@ class ChatControlView : LinearLayout, ActionMode.Callback {
     private val binding get() = _binding
     val chatEt get() = binding.chatEt
     val replyView get() = binding.replyView
+    val anchorView get() = if (replyView.isVisible) {
+        replyView
+    } else {
+        binding.chatSendIb
+    }
 
     private var controlState: STATUS = STATUS.COLLAPSED
         set(value) {
@@ -235,7 +242,7 @@ class ChatControlView : LinearLayout, ActionMode.Callback {
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
-    @SuppressLint("CheckResult")
+    @SuppressLint("CheckResult", "ClickableViewAccessibility")
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
         context,
         attrs,
@@ -812,8 +819,18 @@ class ChatControlView : LinearLayout, ActionMode.Callback {
                 return@OnTouchListener true
             }
             ACTION_MOVE -> {
+                if (sendStatus == SEND && !triggeredCancel) {
+                    if (System.currentTimeMillis() - startTime > LONG_CLICK_DELAY) {
+                        val text = binding.chatEt.text?.trim()?.toString()
+                        if (!text.isNullOrBlank()) {
+                            callback.onSendLongClick(text)
+                            triggeredCancel = true
+                            cleanUp()
+                        }
+                    }
+                    return@OnTouchListener true
+                }
                 if (!currentAudio() || recordCircle.locked || !hasStartRecord) return@OnTouchListener false
-
                 val x = recordCircle.setLockTranslation(event.y)
                 if (x == 2) {
                     ObjectAnimator.ofFloat(
@@ -955,6 +972,7 @@ class ChatControlView : LinearLayout, ActionMode.Callback {
     interface Callback {
         fun onStickerClick()
         fun onSendClick(text: String)
+        fun onSendLongClick(text: String)
         fun onRecordStart(audio: Boolean)
         fun isReady(): Boolean
         fun onRecordEnd()

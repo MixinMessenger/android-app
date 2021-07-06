@@ -812,6 +812,7 @@
     <string name="group_info_show_more_omit"> show more</string>
     <string name="group_info_show_more">show more</string>
     <string name="send">Send</string>
+    <string name="send_silence">Send Without Sound</string>
     <string name="send_file">Send \"%1$s\" to %2$s?</string>
     <string name="send_file_group">Send \"%1$s\" to \"%2$s\"?</string>
     <string name="default_time" translatable="false">00:00</string>
