@@ -39,6 +39,7 @@ open class SendMessageJob(
     private var recipientIds: List<String>? = null,
     private val recallMessageId: String? = null,
     private val krakenParam: KrakenParam? = null,
+    private val isSilent: Boolean? = null,
     messagePriority: Int = PRIORITY_SEND_MESSAGE
 ) : MixinJob(Params(messagePriority).groupBy("send_message_group").requireWebSocketConnected().persist(), message.id) {
 
@@ -156,7 +157,8 @@ open class SendMessageJob(
             content,
             quote_message_id = message.quoteMessageId,
             mentions = getMentionData(message.id),
-            recipient_ids = recipientIds
+            recipient_ids = recipientIds,
+            silent = isSilent,
         )
         val blazeMessage = if (message.isCall()) {
             if (message.isKraken()) {
@@ -200,7 +202,7 @@ open class SendMessageJob(
                 getMentionData(message.id)
             )
         } else {
-            signalProtocol.encryptGroupMessage(message, getMentionData(message.id))
+            signalProtocol.encryptGroupMessage(message, getMentionData(message.id), isSilent)
         }
     }
 

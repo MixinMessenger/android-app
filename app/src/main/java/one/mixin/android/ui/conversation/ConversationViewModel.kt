@@ -157,8 +157,8 @@ internal constructor(
     fun findUserById(conversationId: String): LiveData<User> =
         userRepository.findUserById(conversationId)
 
-    fun sendTextMessage(conversationId: String, sender: User, content: String, isPlain: Boolean) {
-        messenger.sendTextMessage(viewModelScope, conversationId, sender, content, isPlain)
+    fun sendTextMessage(conversationId: String, sender: User, content: String, isPlain: Boolean, isSilent: Boolean? = null) {
+        messenger.sendTextMessage(viewModelScope, conversationId, sender, content, isPlain, isSilent)
     }
 
     fun sendTranscriptMessage(conversationId: String, messageId: String?, sender: User, transcriptMessages: List<TranscriptMessage>, isPlain: Boolean) {
@@ -178,9 +178,10 @@ internal constructor(
         sender: User,
         content: String,
         replyMessage: MessageItem,
-        isPlain: Boolean
+        isPlain: Boolean,
+        isSilentMessage: Boolean? = null
     ) {
-        messenger.sendReplyTextMessage(conversationId, sender, content, replyMessage, isPlain)
+        messenger.sendReplyTextMessage(conversationId, sender, content, replyMessage, isPlain, isSilentMessage)
     }
 
     fun sendAttachmentMessage(conversationId: String, sender: User, attachment: Attachment, isPlain: Boolean, replyMessage: MessageItem? = null) {

@@ -62,6 +62,7 @@ object NotificationGenerator : Injector() {
         message: Message,
         userMap: Map<String, String>? = null,
         force: Boolean = false,
+        isSilent: Boolean = false
     ) = lifecycleScope.launch(Dispatchers.IO) {
         ChannelManager.updateChannelSound(MixinApplication.appContext)
 
@@ -333,7 +334,11 @@ object NotificationGenerator : Injector() {
             notificationBuilder.setSound(Uri.parse("android.resource://" + context.packageName + "/" + R.raw.mixin))
         }
         notificationBuilder.setAutoCancel(true)
-        notificationBuilder.priority = NotificationCompat.PRIORITY_HIGH
+        notificationBuilder.priority = if (isSilent) {
+            NotificationCompat.PRIORITY_MIN
+        } else {
+            NotificationCompat.PRIORITY_HIGH
+        }
         user.notNullWithElse(
             {
                 context.mainThread {

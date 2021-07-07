@@ -211,7 +211,7 @@ class SignalProtocol(ctx: Context) {
         return createParamBlazeMessage(blazeParam)
     }
 
-    fun encryptGroupMessage(message: Message, mentionData: List<String>?): BlazeMessage {
+    fun encryptGroupMessage(message: Message, mentionData: List<String>?, isSilent: Boolean? = null): BlazeMessage {
         val address = SignalProtocolAddress(message.userId, DEFAULT_DEVICE_ID)
         val senderKeyName = SenderKeyName(message.conversationId, address)
         val groupCipher = GroupCipher(senderKeyStore, senderKeyName)
@@ -230,7 +230,8 @@ class SignalProtocol(ctx: Context) {
             message.category,
             data,
             quote_message_id = message.quoteMessageId,
-            mentions = mentionData
+            mentions = mentionData,
+            silent = isSilent
         )
         return createParamBlazeMessage(blazeParam)
     }

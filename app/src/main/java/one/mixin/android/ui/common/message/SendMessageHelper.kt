@@ -78,7 +78,7 @@ import javax.inject.Inject
 
 class SendMessageHelper @Inject internal constructor(private val jobManager: MixinJobManager, private val userRepository: UserRepository) {
 
-    fun sendTextMessage(scope: CoroutineScope, conversationId: String, sender: User, content: String, isPlain: Boolean) {
+    fun sendTextMessage(scope: CoroutineScope, conversationId: String, sender: User, content: String, isPlain: Boolean, isSilentMessage: Boolean? = null) {
         val category =
             if (isPlain) MessageCategory.PLAIN_TEXT.name else MessageCategory.SIGNAL_TEXT.name
         val message = createMessage(
@@ -99,7 +99,7 @@ class SendMessageHelper @Inject internal constructor(private val jobManager: Mix
                     message.category = MessageCategory.PLAIN_TEXT.name
                 }
             }
-            jobManager.addJobInBackground(SendMessageJob(message, recipientId = recipientId))
+            jobManager.addJobInBackground(SendMessageJob(message, recipientId = recipientId, isSilent = isSilentMessage))
         }
     }
 
@@ -141,7 +141,8 @@ class SendMessageHelper @Inject internal constructor(private val jobManager: Mix
         sender: User,
         content: String,
         replyMessage: MessageItem,
-        isPlain: Boolean
+        isPlain: Boolean,
+        isSilentMessage: Boolean? = null
     ) {
         val category =
             if (isPlain) MessageCategory.PLAIN_TEXT.name else MessageCategory.SIGNAL_TEXT.name
@@ -156,7 +157,7 @@ class SendMessageHelper @Inject internal constructor(private val jobManager: Mix
             replyMessage.messageId,
             Gson().toJson(QuoteMessageItem(replyMessage))
         )
-        jobManager.addJobInBackground(SendMessageJob(message))
+        jobManager.addJobInBackground(SendMessageJob(message, isSilent = isSilentMessage))
     }
 
     fun sendPostMessage(conversationId: String, sender: User, content: String, isPlain: Boolean) {

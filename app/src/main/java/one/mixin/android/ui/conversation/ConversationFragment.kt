@@ -840,7 +840,7 @@ class ConversationFragment() :
             }
 
             override fun onSayHi() {
-                sendMessage("Hi")
+                sendTextMessage("Hi")
             }
 
             override fun onOpenHomePage() {
@@ -2022,11 +2022,11 @@ class ConversationFragment() :
         return null
     }
 
-    private fun sendMessage(message: String) {
+    private fun sendTextMessage(message: String, isSilentMessage: Boolean? = null) {
         if (message.isNotBlank()) {
             binding.chatControl.chatEt.setText("")
             createConversation {
-                chatViewModel.sendTextMessage(conversationId, sender, message, isPlainMessage())
+                chatViewModel.sendTextMessage(conversationId, sender, message, isPlainMessage(), isSilentMessage)
                 scrollToDown()
                 markRead()
             }
@@ -2041,7 +2041,7 @@ class ConversationFragment() :
         }
     }
 
-    private fun sendReplyTextMessage(message: String) {
+    private fun sendReplyTextMessage(message: String, isSilentMessage: Boolean? = null) {
         if (message.isNotBlank() && binding.chatControl.replyView.messageItem != null) {
             binding.chatControl.chatEt.setText("")
             createConversation {
@@ -2050,7 +2050,8 @@ class ConversationFragment() :
                     sender,
                     message,
                     binding.chatControl.replyView.messageItem!!,
-                    isPlainMessage()
+                    isPlainMessage(),
+                    isSilentMessage
                 )
                 binding.chatControl.replyView.animateHeight(53.dp, 0)
                 binding.chatControl.replyView.messageItem = null
@@ -2221,7 +2222,7 @@ class ConversationFragment() :
         if (action.startsWith("input:") && action.length > 6) {
             val msg = action.substring(6).trim()
             if (msg.isNotEmpty()) {
-                sendMessage(msg)
+                sendTextMessage(msg)
             }
             return true
         }
@@ -2799,21 +2800,20 @@ class ConversationFragment() :
             if (binding.chatControl.replyView.isVisible && binding.chatControl.replyView.messageItem != null) {
                 sendReplyTextMessage(text)
             } else {
-                sendMessage(text)
+                sendTextMessage(text)
             }
         }
 
         override fun onSendLongClick(text: String) {
-            Timber.e("send long click $text")
             val popupWindow = PopupWindow(requireContext())
             popupWindow.isOutsideTouchable = true
             popupWindow.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             popupWindow.contentView = LayoutInflater.from(requireContext()).inflate(R.layout.view_silence, null, false).apply {
                 setOnClickListener {
                     if (binding.chatControl.replyView.isVisible && binding.chatControl.replyView.messageItem != null) {
-                        sendReplyTextMessage(text)
+                        sendReplyTextMessage(text, true)
                     } else {
-                        sendMessage(text)
+                        sendTextMessage(text, true)
                     }
                     popupWindow.dismiss()
                 }
