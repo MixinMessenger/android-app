@@ -82,6 +82,18 @@ interface UserDao : BaseDao<User> {
     )
     suspend fun fuzzySearchGroupUser(conversationId: String, username: String, identityNumber: String, id: String): List<User>
 
+    @Query(
+        """SELECT u.* FROM users u 
+        WHERE (u.user_id in (SELECT m.user_id FROM messages m WHERE conversation_id = :conversationId AND m.created_at > :createdAt)
+        OR u.user_id in (SELECT f.user_id FROM users f WHERE relationship = 'FRIEND'))
+        AND u.user_id != :id
+        AND (u.full_name LIKE '%' || :username || '%' $ESCAPE_SUFFIX OR u.identity_number like '%' || :identityNumber || '%' $ESCAPE_SUFFIX)
+        ORDER BY CASE u.relationship WHEN 'FRIEND' THEN 1 ELSE 2 END, 
+        u.relationship OR u.full_name = :username COLLATE NOCASE OR u.identity_number = :identityNumber COLLATE NOCASE DESC 
+        """
+    )
+    suspend fun fuzzySearchBotGroupUser(conversationId: String, username: String, identityNumber: String, id: String, createdAt:String): List<User>
+
     @Query("SELECT u.* FROM participants p, users u WHERE p.conversation_id = :conversationId AND p.user_id = u.user_id AND u.user_id != :id")
     suspend fun suspendGetGroupParticipants(conversationId: String, id: String): List<User>
 

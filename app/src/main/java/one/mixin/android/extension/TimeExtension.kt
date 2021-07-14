@@ -26,6 +26,9 @@ private const val yearPatternCn = "yyyy 年 MM 月 d 日 E"
 
 fun nowInUtc() = Instant.now().toString()
 
+fun oneWeekAgo() =
+    Instant.ofEpochMilli(System.currentTimeMillis() - 60 * 60 * 1000 * 24 * 7).toString()
+
 private const val DAY_DURATION = 24 * 3600 * 1000
 
 fun String.date(): String {
