@@ -20,6 +20,7 @@ import one.mixin.android.util.GsonHelper
 import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.MessageItem
 import one.mixin.android.vo.QuoteMessageItem
+import one.mixin.android.vo.absolutePath
 import one.mixin.android.vo.isSignal
 import org.jetbrains.anko.dip
 
@@ -265,7 +266,7 @@ class VideoQuoteHolder constructor(val binding: ItemChatVideoQuoteBinding) : Bas
         }
 
         binding.chatImage.loadVideo(
-            messageItem.mediaUrl,
+            messageItem.absolutePath(),
             messageItem.thumbImage,
             minWidth,
             minWidth * messageItem.mediaHeight / messageItem.mediaWidth

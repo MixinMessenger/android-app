@@ -108,7 +108,7 @@ class ConvertVideoJob(
             if (error) MessageStatus.FAILED.name else MessageStatus.SENDING.name
         )
         if (!error) {
-            messageDao.updateMediaMessageUrl(videoFile.toUri().toString(), messageId)
+            messageDao.updateMediaMessageUrl(videoFile.name, messageId)
             jobManager.addJobInBackground(SendAttachmentMessageJob(message))
         }
 

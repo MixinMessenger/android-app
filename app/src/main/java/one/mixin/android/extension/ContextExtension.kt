@@ -63,6 +63,7 @@ import one.mixin.android.util.video.VideoEditedInfo
 import one.mixin.android.vo.AssetItem
 import one.mixin.android.vo.MessageItem
 import one.mixin.android.vo.TranscriptMessageItem
+import one.mixin.android.vo.absolutePath
 import one.mixin.android.widget.gallery.Gallery
 import one.mixin.android.widget.gallery.MimeType
 import one.mixin.android.widget.gallery.engine.impl.GlideEngine
@@ -353,7 +354,7 @@ fun Context.openMedia(messageItem: MessageItem) {
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     try {
-        messageItem.mediaUrl?.let {
+        messageItem.absolutePath()?.let {
             val uri = Uri.parse(it)
             if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
                 intent.setDataAndType(uri, messageItem.mediaMimeType)
@@ -362,7 +363,7 @@ fun Context.openMedia(messageItem: MessageItem) {
                 val path = if (uri.scheme == ContentResolver.SCHEME_FILE) {
                     uri.path
                 } else {
-                    messageItem.mediaUrl
+                    messageItem.absolutePath()
                 }
                 if (path == null) {
                     toast(R.string.error_file_exists)
@@ -390,7 +391,7 @@ fun Context.openMedia(messageItem: TranscriptMessageItem) {
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     try {
-        messageItem.mediaUrl?.let {
+        messageItem.absolutePath()?.let {
             val uri = Uri.parse(it)
             if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
                 intent.setDataAndType(uri, messageItem.mediaMimeType)
@@ -399,7 +400,7 @@ fun Context.openMedia(messageItem: TranscriptMessageItem) {
                 val path = if (uri.scheme == ContentResolver.SCHEME_FILE) {
                     uri.path
                 } else {
-                    messageItem.mediaUrl
+                    messageItem.absolutePath()
                 }
                 if (path == null) {
                     toast(R.string.error_file_exists)

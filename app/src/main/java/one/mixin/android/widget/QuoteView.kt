@@ -8,11 +8,17 @@ import android.view.View
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.net.toUri
 import androidx.core.widget.TextViewCompat
+import one.mixin.android.MixinApplication
 import one.mixin.android.R
 import one.mixin.android.databinding.ViewQuoteBinding
 import one.mixin.android.extension.dpToPx
 import one.mixin.android.extension.formatMillis
+import one.mixin.android.extension.generateConversationPath
+import one.mixin.android.extension.getImagePath
+import one.mixin.android.extension.getMediaPath
+import one.mixin.android.extension.getVideoPath
 import one.mixin.android.extension.loadImageCenterCrop
 import one.mixin.android.extension.notNullWithElse
 import one.mixin.android.extension.renderMessage
@@ -24,6 +30,7 @@ import one.mixin.android.vo.MessageCategory
 import one.mixin.android.vo.QuoteMessageItem
 import one.mixin.android.vo.SnakeQuoteMessageItem
 import org.jetbrains.anko.dip
+import java.io.File
 
 class QuoteView constructor(context: Context, attrs: AttributeSet) :
     ConstraintLayout(context, attrs) {
@@ -90,7 +97,7 @@ class QuoteView constructor(context: Context, attrs: AttributeSet) :
             }
             quoteMessageItem.type.endsWith("_IMAGE") -> {
                 binding.replyIv.loadImageCenterCrop(
-                    quoteMessageItem.mediaUrl,
+                    absolutePath(quoteMessageItem.mediaUrl, quoteMessageItem.type, quoteMessageItem.conversationId),
                     R.drawable.image_holder
                 )
                 binding.replyContentTv.setText(R.string.photo)
@@ -104,7 +111,7 @@ class QuoteView constructor(context: Context, attrs: AttributeSet) :
             }
             quoteMessageItem.type.endsWith("_VIDEO") -> {
                 binding.replyIv.loadImageCenterCrop(
-                    quoteMessageItem.mediaUrl,
+                    absolutePath(quoteMessageItem.mediaUrl, quoteMessageItem.type, quoteMessageItem.conversationId),
                     R.drawable.image_holder
                 )
                 binding.replyContentTv.setText(R.string.video)
@@ -322,7 +329,7 @@ class QuoteView constructor(context: Context, attrs: AttributeSet) :
             }
             quoteMessageItem.type.endsWith("_IMAGE") -> {
                 binding.replyIv.loadImageCenterCrop(
-                    quoteMessageItem.mediaUrl,
+                    absolutePath(quoteMessageItem.mediaUrl, quoteMessageItem.type, quoteMessageItem.conversationId),
                     R.drawable.image_holder
                 )
                 binding.replyContentTv.setText(R.string.photo)
@@ -336,7 +343,7 @@ class QuoteView constructor(context: Context, attrs: AttributeSet) :
             }
             quoteMessageItem.type.endsWith("_VIDEO") -> {
                 binding.replyIv.loadImageCenterCrop(
-                    quoteMessageItem.mediaUrl,
+                    absolutePath(quoteMessageItem.mediaUrl, quoteMessageItem.type, quoteMessageItem.conversationId),
                     R.drawable.image_holder
                 )
                 binding.replyContentTv.setText(R.string.video)
@@ -469,6 +476,29 @@ class QuoteView constructor(context: Context, attrs: AttributeSet) :
             else -> {
                 binding.replyIv.visibility = View.GONE
             }
+        }
+    }
+
+    fun absolutePath(
+        mediaUrl: String?,
+        type: String,
+        conversationId: String,
+        context: Context = MixinApplication.appContext
+    ): String? {
+        val mediaPath = context.getMediaPath()?.absolutePath ?: return null
+        return when {
+            mediaUrl == null -> null
+            mediaUrl.startsWith(mediaPath) -> mediaUrl
+            type == MessageCategory.SIGNAL_IMAGE.name || type == MessageCategory.PLAIN_IMAGE.name || type == MessageCategory.ENCRYPTED_IMAGE.name -> File(
+                context.getImagePath().generateConversationPath(conversationId),
+                mediaUrl
+            ).toUri().toString()
+            type == MessageCategory.SIGNAL_VIDEO.name || type == MessageCategory.PLAIN_VIDEO.name || type == MessageCategory.ENCRYPTED_VIDEO.name ->
+                File(
+                    context.getVideoPath().generateConversationPath(conversationId),
+                    mediaUrl
+                ).toUri().toString()
+            else -> null
         }
     }
 }

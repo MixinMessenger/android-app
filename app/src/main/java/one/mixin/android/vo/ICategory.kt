@@ -1,5 +1,16 @@
 package one.mixin.android.vo
 
+import android.content.Context
+import androidx.core.net.toUri
+import one.mixin.android.extension.generateConversationPath
+import one.mixin.android.extension.getAudioPath
+import one.mixin.android.extension.getDocumentPath
+import one.mixin.android.extension.getImagePath
+import one.mixin.android.extension.getMediaPath
+import one.mixin.android.extension.getTranscriptDirPath
+import one.mixin.android.extension.getVideoPath
+import java.io.File
+
 interface ICategory {
     val type: String?
 }
@@ -96,4 +107,18 @@ fun ICategory.canRecall(): Boolean {
         type == MessageCategory.PLAIN_LOCATION.name ||
         type == MessageCategory.PLAIN_TRANSCRIPT.name ||
         type == MessageCategory.APP_CARD.name
+}
+
+fun ICategory.absolutePath(context: Context, conversationId: String, mediaUrl: String?): String? {
+    val mediaPath = context.getMediaPath()?.absolutePath ?: return null
+    return when {
+        mediaUrl == null -> null
+        mediaUrl.startsWith(mediaPath) -> mediaUrl
+        isImage() -> File(context.getImagePath().generateConversationPath(conversationId), mediaUrl).toUri().toString()
+        isVideo() -> File(context.getVideoPath().generateConversationPath(conversationId), mediaUrl).toUri().toString()
+        isAudio() -> File(context.getAudioPath().generateConversationPath(conversationId), mediaUrl).toUri().toString()
+        isData() -> File(context.getDocumentPath().generateConversationPath(conversationId), mediaUrl).toUri().toString()
+        isTranscript() -> File(context.getTranscriptDirPath(), mediaUrl).toUri().toString()
+        else -> null
+    }
 }

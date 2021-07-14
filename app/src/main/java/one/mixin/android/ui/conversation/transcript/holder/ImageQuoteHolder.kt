@@ -17,6 +17,7 @@ import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.MessageStatus
 import one.mixin.android.vo.SnakeQuoteMessageItem
 import one.mixin.android.vo.TranscriptMessageItem
+import one.mixin.android.vo.absolutePath
 import org.jetbrains.anko.dip
 import kotlin.math.min
 
@@ -137,7 +138,7 @@ class ImageQuoteHolder constructor(val binding: ItemChatImageQuoteBinding) : Med
             binding.chatImage.layoutParams.height =
                 min(width * dataHeight / dataWidth, mediaHeight)
         }
-        binding.chatImage.loadLongImageMark(messageItem.mediaUrl, null)
+        binding.chatImage.loadLongImageMark(messageItem.absolutePath(), null)
 
         val isMe = messageItem.userId == Session.getAccountId()
         if (isFirst && !isMe) {

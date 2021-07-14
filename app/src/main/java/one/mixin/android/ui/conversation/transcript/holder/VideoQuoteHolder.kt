@@ -21,6 +21,7 @@ import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.MessageStatus
 import one.mixin.android.vo.SnakeQuoteMessageItem
 import one.mixin.android.vo.TranscriptMessageItem
+import one.mixin.android.vo.absolutePath
 import org.jetbrains.anko.dip
 
 class VideoQuoteHolder constructor(val binding: ItemChatVideoQuoteBinding) : BaseViewHolder(binding.root) {
@@ -185,7 +186,7 @@ class VideoQuoteHolder constructor(val binding: ItemChatVideoQuoteBinding) : Bas
         }
 
         binding.chatImage.loadVideo(
-            messageItem.mediaUrl,
+            messageItem.absolutePath(),
             messageItem.thumbImage,
             minWidth,
             minWidth * messageItem.mediaHeight / messageItem.mediaWidth

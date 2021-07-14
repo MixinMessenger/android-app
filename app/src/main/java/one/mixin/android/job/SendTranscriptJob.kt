@@ -1,7 +1,6 @@
 package one.mixin.android.job
 
 import android.net.Uri
-import androidx.core.net.toUri
 import com.birbit.android.jobqueue.Params
 import com.bugsnag.android.Bugsnag
 import one.mixin.android.MixinApplication
@@ -15,6 +14,7 @@ import one.mixin.android.util.MessageFts4Helper
 import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.Message
 import one.mixin.android.vo.TranscriptMessage
+import one.mixin.android.vo.absolutePath
 import one.mixin.android.vo.isAttachment
 import one.mixin.android.vo.isContact
 import one.mixin.android.vo.isData
@@ -57,7 +57,7 @@ class SendTranscriptJob(
             messageDao.insert(message)
             transcriptMessages.forEach { transcript ->
                 if (transcript.isAttachment()) {
-                    val mediaUrl = transcript.mediaUrl
+                    val mediaUrl = transcript.absolutePath()
                     if (mediaUrl == null) {
                         transcript.mediaUrl = null
                         transcript.mediaStatus = MediaStatus.DONE.name
@@ -71,7 +71,7 @@ class SendTranscriptJob(
                             if (!outFile.exists() || outFile.length() <= 0) {
                                 file.copy(outFile)
                             }
-                            transcript.mediaUrl = outFile.toUri().toString()
+                            transcript.mediaUrl = outFile.name
                             transcript.mediaStatus = MediaStatus.CANCELED.name
                         } else {
                             transcript.mediaUrl = null

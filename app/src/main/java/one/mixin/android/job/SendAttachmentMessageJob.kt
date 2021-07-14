@@ -21,6 +21,7 @@ import one.mixin.android.util.GsonHelper
 import one.mixin.android.util.reportException
 import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.Message
+import one.mixin.android.vo.absolutePath
 import one.mixin.android.vo.isVideo
 import one.mixin.android.websocket.AttachmentMessagePayload
 import org.jetbrains.anko.getStackTraceString
@@ -126,7 +127,7 @@ class SendAttachmentMessageJob(
             Util.getSecretBytes(64)
         }
         val inputStream = try {
-            MixinApplication.appContext.contentResolver.openInputStream(Uri.parse(message.mediaUrl))
+            MixinApplication.appContext.contentResolver.openInputStream(Uri.parse(message.absolutePath()))
         } catch (e: FileNotFoundException) {
             MixinApplication.appScope.launch(Dispatchers.Main) {
                 MixinApplication.get().toast(R.string.error_file_exists)

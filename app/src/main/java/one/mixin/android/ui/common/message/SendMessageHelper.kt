@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
+import androidx.core.net.toFile
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -191,7 +192,7 @@ class SendMessageHelper @Inject internal constructor(private val jobManager: Mix
         val category = if (isPlain) MessageCategory.PLAIN_DATA.name else MessageCategory.SIGNAL_DATA.name
         val message = createAttachmentMessage(
             UUID.randomUUID().toString(), conversationId, sender.userId, category,
-            null, attachment.filename, attachment.uri.toString(),
+            null, attachment.filename, attachment.uri.toFile().name,
             attachment.mimeType, attachment.fileSize, nowInUtc(), null,
             null, MediaStatus.PENDING, MessageStatus.SENDING.name, replyMessage?.messageId, replyMessage?.toQuoteMessageItem()
         )
@@ -211,7 +212,7 @@ class SendMessageHelper @Inject internal constructor(private val jobManager: Mix
         val category = if (isPlain) MessageCategory.PLAIN_AUDIO.name else MessageCategory.SIGNAL_AUDIO.name
         val message = createAudioMessage(
             messageId, conversationId, sender.userId, null, category,
-            file.length(), Uri.fromFile(file).toString(), duration.toString(), nowInUtc(), waveForm, null, null,
+            file.length(), file.name, duration.toString(), nowInUtc(), waveForm, null, null,
             MediaStatus.PENDING, MessageStatus.SENDING.name, replyMessage?.messageId, replyMessage?.toQuoteMessageItem()
         )
         jobManager.addJobInBackground(SendAttachmentMessageJob(message))
@@ -394,7 +395,7 @@ class SendMessageHelper @Inject internal constructor(private val jobManager: Mix
                 sender.userId,
                 category,
                 null,
-                Uri.fromFile(gifFile).toString(),
+                gifFile.name,
                 mimeType,
                 gifFile.length(),
                 size.width,
@@ -429,7 +430,6 @@ class SendMessageHelper @Inject internal constructor(private val jobManager: Mix
                     temp.absolutePath
                 )
         }
-        val imageUrl = Uri.fromFile(temp).toString()
         val length = imageFile.length()
         if (length <= 0) {
             return -1
@@ -442,7 +442,7 @@ class SendMessageHelper @Inject internal constructor(private val jobManager: Mix
             sender.userId,
             category,
             null,
-            imageUrl,
+            temp.name,
             MimeType.JPEG.toString(),
             length,
             size.width,
