@@ -310,6 +310,7 @@ dependencies {
     implementation "com.mapbox.mapboxsdk:mapbox-android-sdk:${mapboxSdkVersion}"
     implementation "com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:${mapboxLocationVersion}"
     implementation "com.mattprecious.swirl:swirl:$swirlVersion"
+    implementation "org.chromium.net:cronet-fallback:76.3809.111"
 
     ktlint "com.pinterest:ktlint:${ktlintVersion}"
 

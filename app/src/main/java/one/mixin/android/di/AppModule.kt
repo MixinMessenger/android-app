@@ -3,9 +3,9 @@ package one.mixin.android.di
 import android.app.Application
 import android.content.ComponentName
 import android.content.ContentResolver
+import androidx.core.net.toUri
 import com.birbit.android.jobqueue.config.Configuration
 import com.birbit.android.jobqueue.scheduling.FrameworkJobSchedulerService
-import com.google.gson.JsonSyntaxException
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.twilio.audioswitch.AudioDevice
 import com.twilio.audioswitch.AudioSwitch
@@ -14,21 +14,15 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
-import okhttp3.ResponseBody.Companion.toResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import one.mixin.android.BuildConfig
-import one.mixin.android.Constants
-import one.mixin.android.Constants.ALLOW_INTERVAL
 import one.mixin.android.Constants.API.FOURSQUARE_URL
 import one.mixin.android.Constants.API.GIPHY_URL
+import one.mixin.android.Constants.API.Mixin_URL
 import one.mixin.android.Constants.API.URL
 import one.mixin.android.Constants.DNS
-import one.mixin.android.MixinApplication
-import one.mixin.android.api.ExpiredTokenException
-import one.mixin.android.api.MixinResponse
-import one.mixin.android.api.NetworkException
-import one.mixin.android.api.ServerErrorException
 import one.mixin.android.api.service.AccountService
 import one.mixin.android.api.service.AddressService
 import one.mixin.android.api.service.AssetService
@@ -50,45 +44,35 @@ import one.mixin.android.db.JobDao
 import one.mixin.android.db.MessageDao
 import one.mixin.android.db.OffsetDao
 import one.mixin.android.extension.filterNonAscii
-import one.mixin.android.extension.getDeviceId
-import one.mixin.android.extension.networkConnected
-import one.mixin.android.extension.show
 import one.mixin.android.job.BaseJob
 import one.mixin.android.job.JobLogger
 import one.mixin.android.job.JobNetworkUtil
 import one.mixin.android.job.MixinJobManager
 import one.mixin.android.job.MyJobService
-import one.mixin.android.session.JwtResult
-import one.mixin.android.session.Session
 import one.mixin.android.ui.player.MusicService
 import one.mixin.android.ui.player.internal.MusicServiceConnection
-import one.mixin.android.util.ErrorHandler.Companion.AUTHENTICATION
-import one.mixin.android.util.ErrorHandler.Companion.OLD_VERSION
-import one.mixin.android.util.GsonHelper
 import one.mixin.android.util.LiveDataCallAdapterFactory
-import one.mixin.android.util.reportException
+import one.mixin.android.util.cronet.CronetCallback
+import one.mixin.android.util.cronet.CronetInterceptor
 import one.mixin.android.vo.CallStateLiveData
 import one.mixin.android.vo.LinkState
 import one.mixin.android.websocket.ChatWebSocket
+import org.chromium.net.CronetEngine
+import org.chromium.net.ExperimentalCronetEngine
+import org.chromium.net.RequestFinishedInfo
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Locale
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
-import kotlin.math.abs
 
 @InstallIn(SingletonComponent::class)
 @Module(includes = [(BaseDbModule::class)])
 object AppModule {
 
-    private val xServerTime = "X-Server-Time"
-    private val xRequestId = "X-Request-Id"
-    private val authorization = "Authorization"
-
-    private val LOCALE = Locale.getDefault().language + "-" + Locale.getDefault().country
-    private val API_UA = (
+    val LOCALE = Locale.getDefault().language + "-" + Locale.getDefault().country
+    val API_UA = (
         "Mixin/" + BuildConfig.VERSION_NAME +
             " (Android " + android.os.Build.VERSION.RELEASE + "; " + android.os.Build.FINGERPRINT + "; " + LOCALE + ")"
         ).filterNonAscii()
@@ -106,11 +90,21 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideOkHttp(resolver: ContentResolver, httpLoggingInterceptor: HttpLoggingInterceptor?): OkHttpClient {
+    fun provideDispatcher(): Dispatcher = Dispatcher()
+
+    @Singleton
+    @Provides
+    fun provideOkHttp(
+        resolver: ContentResolver,
+        dispatcher: Dispatcher,
+        cronetEngine: ExperimentalCronetEngine,
+        httpLoggingInterceptor: HttpLoggingInterceptor?,
+    ): OkHttpClient {
         val builder = OkHttpClient.Builder()
+        builder.dispatcher(dispatcher)
         builder.addInterceptor(HostSelectionInterceptor.get())
         httpLoggingInterceptor?.let { interceptor ->
-            builder.addNetworkInterceptor(interceptor)
+            builder.addInterceptor(interceptor)
         }
         builder.connectTimeout(10, TimeUnit.SECONDS)
         builder.writeTimeout(10, TimeUnit.SECONDS)
@@ -118,87 +112,7 @@ object AppModule {
         builder.pingInterval(15, TimeUnit.SECONDS)
         builder.retryOnConnectionFailure(false)
         builder.dns(DNS)
-
-        builder.addInterceptor { chain ->
-            val requestId = UUID.randomUUID().toString()
-            val sourceRequest = chain.request()
-            val request = sourceRequest.newBuilder()
-                .addHeader("User-Agent", API_UA)
-                .addHeader("Accept-Language", Locale.getDefault().language)
-                .addHeader("Mixin-Device-Id", getDeviceId(resolver))
-                .addHeader(xRequestId, requestId)
-                .addHeader(authorization, "Bearer ${Session.signToken(Session.getAccount(), sourceRequest, requestId)}")
-                .build()
-            if (MixinApplication.appContext.networkConnected()) {
-                var response = try {
-                    chain.proceed(request)
-                } catch (e: Exception) {
-                    throw e.apply {
-                        if (e.isNeedSwitch()) {
-                            HostSelectionInterceptor.get().switch(request)
-                        }
-                    }
-                }
-
-                if (!response.isSuccessful) {
-                    val code = response.code
-                    if (code in 501..599) {
-                        HostSelectionInterceptor.get().switch(request)
-                        throw ServerErrorException(code)
-                    } else if (code == 500) {
-                        throw ServerErrorException(code)
-                    }
-                }
-
-                var jwtResult: JwtResult? = null
-                response.body?.run {
-                    val bytes = this.bytes()
-                    val body = bytes.toResponseBody(this.contentType())
-                    response = response.newBuilder().body(body).build()
-                    if (bytes.isEmpty()) return@run
-                    if (request.header(xRequestId) != response.header(xRequestId)) {
-                        throw ServerErrorException(response.code)
-                    }
-                    val mixinResponse = try {
-                        GsonHelper.customGson.fromJson(String(bytes), MixinResponse::class.java)
-                    } catch (e: JsonSyntaxException) {
-                        HostSelectionInterceptor.get().switch(request)
-                        throw ServerErrorException(response.code)
-                    }
-                    if (mixinResponse.errorCode == OLD_VERSION) {
-                        MixinApplication.get().gotoOldVersionAlert()
-                        return@run
-                    } else if (mixinResponse.errorCode != AUTHENTICATION) return@run
-                    val authorization = response.request.header(authorization)
-                    if (!authorization.isNullOrBlank() && authorization.startsWith("Bearer ")) {
-                        val jwt = authorization.substring(7)
-                        jwtResult = Session.requestDelay(Session.getAccount(), jwt, Constants.DELAY_SECOND)
-                        if (jwtResult?.isExpire == true) {
-                            throw ExpiredTokenException()
-                        }
-                    }
-                }
-
-                if (MixinApplication.get().onlining.get()) {
-                    response.header(xServerTime)?.toLong()?.let { serverTime ->
-                        val currentTime = System.currentTimeMillis()
-                        if (abs(serverTime / 1000000 - System.currentTimeMillis()) >= ALLOW_INTERVAL) {
-                            MixinApplication.get().gotoTimeWrong(serverTime)
-                        } else if (jwtResult?.isExpire == false) {
-                            jwtResult?.serverTime = serverTime / 1000000000
-                            jwtResult?.currentTime = currentTime / 1000
-                            val ise = IllegalStateException("Force logout. $jwtResult. request: ${request.show()}, response: ${response.show()}")
-                            reportException(ise)
-                            MixinApplication.get().closeAndClear()
-                        }
-                    }
-                }
-
-                return@addInterceptor response
-            } else {
-                throw NetworkException()
-            }
-        }
+        builder.addInterceptor(CronetInterceptor(resolver, cronetEngine, dispatcher.executorService))
         return builder.build()
     }
 
@@ -213,6 +127,34 @@ object AppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttp)
         return builder.build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideCronetEngine(
+        app: Application,
+        dispatcher: Dispatcher
+    ): ExperimentalCronetEngine {
+        val cacheDir = app.applicationContext.cacheDir.resolve("cronet-cache")
+        cacheDir.mkdir()
+        return ExperimentalCronetEngine.Builder(app.applicationContext)
+            // .enableNetworkQualityEstimator(true)
+            .addQuicHint(URL.toUri().host, 443, 443)
+            .addQuicHint(Mixin_URL.toUri().host, 443, 443)
+            .enableHttp2(true)
+            .enableQuic(true)
+            .setStoragePath(cacheDir.path)
+            // .enableBrotli(true)
+            .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_DISK, 10 * 1024 * 1024)
+            .build().apply {
+                if (BuildConfig.DEBUG) {
+                    addRequestFinishedListener(object : RequestFinishedInfo.Listener(dispatcher.executorService) {
+                        override fun onRequestFinished(requestInfo: RequestFinishedInfo) {
+                            CronetCallback.onRequestFinishedHandle(requestInfo)
+                        }
+                    })
+                }
+            }
     }
 
     @Singleton
