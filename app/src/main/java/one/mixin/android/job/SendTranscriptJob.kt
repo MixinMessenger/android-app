@@ -57,12 +57,12 @@ class SendTranscriptJob(
             messageDao.insert(message)
             transcriptMessages.forEach { transcript ->
                 if (transcript.isAttachment()) {
-                    val mediaUrl = transcript.absolutePath()
+                    val mediaUrl = transcript.mediaUrl
                     if (mediaUrl == null) {
                         transcript.mediaUrl = null
                         transcript.mediaStatus = MediaStatus.DONE.name
                     } else {
-                        val file = File(Uri.parse(mediaUrl).path!!)
+                        val file = File(mediaUrl)
                         if (file.exists()) {
                             val outFile = MixinApplication.appContext.getTranscriptFile(
                                 transcript.messageId,
