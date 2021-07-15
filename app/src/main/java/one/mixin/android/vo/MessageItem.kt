@@ -320,7 +320,7 @@ fun MessageItem.toTranscript(transcriptId: String): TranscriptMessage {
         requireNotNull(type),
         createdAt,
         content,
-        mediaUrl ?: assetUrl,
+        absolutePath() ?: assetUrl,
         mediaName,
         mediaSize,
         mediaWidth,

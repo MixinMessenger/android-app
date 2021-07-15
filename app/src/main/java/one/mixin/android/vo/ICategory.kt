@@ -2,6 +2,7 @@ package one.mixin.android.vo
 
 import android.content.Context
 import androidx.core.net.toUri
+import one.mixin.android.MixinApplication
 import one.mixin.android.extension.generateConversationPath
 import one.mixin.android.extension.getAudioPath
 import one.mixin.android.extension.getDocumentPath
@@ -109,11 +110,15 @@ fun ICategory.canRecall(): Boolean {
         type == MessageCategory.APP_CARD.name
 }
 
+private val mediaPath by lazy {
+    MixinApplication.appContext.getMediaPath()?.absolutePath
+}
+
 fun ICategory.absolutePath(context: Context, conversationId: String, mediaUrl: String?): String? {
-    val mediaPath = context.getMediaPath()?.absolutePath ?: return null
+    val dirPath = mediaPath ?: return null
     return when {
         mediaUrl == null -> null
-        mediaUrl.startsWith(mediaPath) -> mediaUrl
+        mediaUrl.startsWith(dirPath) -> mediaUrl
         isImage() -> File(context.getImagePath().generateConversationPath(conversationId), mediaUrl).toUri().toString()
         isVideo() -> File(context.getVideoPath().generateConversationPath(conversationId), mediaUrl).toUri().toString()
         isAudio() -> File(context.getAudioPath().generateConversationPath(conversationId), mediaUrl).toUri().toString()
