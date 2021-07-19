@@ -273,7 +273,6 @@ class MixinDatabaseMigrations private constructor() {
             }
         }
 
-        // Remaining works
         val MIGRATION_38_39: Migration = object : Migration(38, 39) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("DROP INDEX IF EXISTS `index_messages_conversation_id_user_id_status_created_at`")
