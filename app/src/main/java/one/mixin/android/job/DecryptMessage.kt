@@ -7,6 +7,7 @@ import androidx.collection.arrayMapOf
 import com.bugsnag.android.Bugsnag
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import one.mixin.android.Constants
 import one.mixin.android.MixinApplication
@@ -515,8 +516,10 @@ class DecryptMessage(private val lifecycleScope: CoroutineScope) : Injector() {
                 }
 
                 messageDao.insertAndNotifyConversation(message, conversationDao, accountId)
-                MixinApplication.appContext.autoDownload(autoDownloadPhoto) {
-                    jobManager.addJobInBackground(AttachmentDownloadJob(message))
+                lifecycleScope.launch {
+                    MixinApplication.appContext.autoDownload(autoDownloadPhoto) {
+                        jobManager.addJobInBackground(AttachmentDownloadJob(message))
+                    }
                 }
 
                 generateNotification(message, data.source)
@@ -540,8 +543,10 @@ class DecryptMessage(private val lifecycleScope: CoroutineScope) : Injector() {
                 }
 
                 messageDao.insertAndNotifyConversation(message, conversationDao, accountId)
-                MixinApplication.appContext.autoDownload(autoDownloadVideo) {
-                    jobManager.addJobInBackground(AttachmentDownloadJob(message))
+                lifecycleScope.launch {
+                    MixinApplication.appContext.autoDownload(autoDownloadVideo) {
+                        jobManager.addJobInBackground(AttachmentDownloadJob(message))
+                    }
                 }
                 generateNotification(message, data.source)
             }
@@ -560,8 +565,10 @@ class DecryptMessage(private val lifecycleScope: CoroutineScope) : Injector() {
 
                 messageDao.insertAndNotifyConversation(message, conversationDao, accountId)
                 MessageFts4Helper.insertOrReplaceMessageFts4(message)
-                MixinApplication.appContext.autoDownload(autoDownloadDocument) {
-                    jobManager.addJobInBackground(AttachmentDownloadJob(message))
+                lifecycleScope.launch {
+                    MixinApplication.appContext.autoDownload(autoDownloadDocument) {
+                        jobManager.addJobInBackground(AttachmentDownloadJob(message))
+                    }
                 }
                 generateNotification(message, data.source)
             }

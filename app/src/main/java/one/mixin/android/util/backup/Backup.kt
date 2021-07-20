@@ -14,6 +14,7 @@ import one.mixin.android.db.MixinDatabase
 import one.mixin.android.db.runInTransaction
 import one.mixin.android.extension.getBackupPath
 import one.mixin.android.extension.getOldBackupPath
+import one.mixin.android.util.PropertyHelper
 import java.io.File
 import kotlin.coroutines.CoroutineContext
 
@@ -24,7 +25,7 @@ suspend fun backup(
     context: Context,
     callback: (Result) -> Unit
 ) = coroutineScope {
-    val dbFile = context.getDatabasePath(Constants.DataBase.DB_NAME)
+    val dbFile = context.getDatabasePath(DB_NAME)
     if (dbFile == null) {
         withContext(Dispatchers.Main) {
             callback(Result.NOT_FOUND)
@@ -118,7 +119,7 @@ suspend fun restore(
 ) = withContext(Dispatchers.IO) {
     val target = findBackup(context, coroutineContext)
         ?: return@withContext callback(Result.NOT_FOUND)
-    val file = context.getDatabasePath(Constants.DataBase.DB_NAME)
+    val file = context.getDatabasePath(DB_NAME)
     try {
         if (file.exists()) {
             file.delete()
@@ -126,6 +127,9 @@ suspend fun restore(
         File("${file.absolutePath}-wal").delete()
         File("${file.absolutePath}-shm").delete()
         target.copyTo(file)
+
+        // Reset BACKUP_LAST_TIME so that the user who restores the backup does not need to backup after login
+        PropertyHelper.updateKeyValue(context, Constants.BackUp.BACKUP_LAST_TIME, System.currentTimeMillis().toString())
 
         withContext(Dispatchers.Main) {
             callback(Result.SUCCESS)

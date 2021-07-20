@@ -10,18 +10,18 @@ import androidx.annotation.WorkerThread
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import com.birbit.android.jobqueue.Params
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import one.mixin.android.Constants
+import one.mixin.android.Constants.Account.PREF_BACKUP
 import one.mixin.android.Constants.BackUp.BACKUP_LAST_TIME
 import one.mixin.android.Constants.BackUp.BACKUP_PERIOD
 import one.mixin.android.MixinApplication
 import one.mixin.android.R
-import one.mixin.android.extension.defaultSharedPreferences
 import one.mixin.android.extension.getCacheMediaPath
 import one.mixin.android.extension.getMediaPath
 import one.mixin.android.extension.moveChileFileToDir
-import one.mixin.android.extension.putLong
 import one.mixin.android.extension.toast
+import one.mixin.android.util.PropertyHelper
 import one.mixin.android.util.backup.BackupLiveData
 import one.mixin.android.util.backup.BackupNotification
 import one.mixin.android.util.backup.Result
@@ -43,18 +43,18 @@ class BackupJob(private val force: Boolean = false) : BaseJob(
         val backupLiveData = BackupLiveData()
     }
 
-    override fun onRun() {
+    override fun onRun() = runBlocking {
         val context = MixinApplication.appContext
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            return
+            return@runBlocking
         }
         if (force) {
             backup(context)
-        } else if (context.defaultSharedPreferences.getBoolean(Constants.Account.PREF_BACKUP, false)) {
-            val option = context.defaultSharedPreferences.getInt(BACKUP_PERIOD, 0)
+        } else if (propertyDao.findValueByKey(PREF_BACKUP)?.toBoolean() == true) {
+            val option = PropertyHelper.findValueByKey(context, BACKUP_PERIOD)?.toIntOrNull() ?: 0
             if (option in 1..3) {
                 val currentTime = System.currentTimeMillis()
-                val lastTime = context.defaultSharedPreferences.getLong(BACKUP_LAST_TIME, currentTime)
+                val lastTime = PropertyHelper.findValueByKey(context, BACKUP_LAST_TIME)?.toLongOrNull() ?: currentTime
                 val timeDiff = currentTime - lastTime
                 if (timeDiff >= when (option) {
                     1 -> DAY_IN_MILLIS
@@ -96,7 +96,9 @@ class BackupJob(private val force: Boolean = false) : BaseJob(
                 backupLiveData.setResult(false, result)
                 BackupNotification.cancel()
                 if (result == Result.SUCCESS) {
-                    context.defaultSharedPreferences.putLong(BACKUP_LAST_TIME, System.currentTimeMillis())
+                    this.launch {
+                        PropertyHelper.updateKeyValue(context, BACKUP_LAST_TIME, System.currentTimeMillis().toString())
+                    }
                     context.toast(R.string.backup_success_tip)
                 }
             }

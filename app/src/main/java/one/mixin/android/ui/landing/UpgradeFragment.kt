@@ -14,12 +14,11 @@ import one.mixin.android.MixinApplication
 import one.mixin.android.R
 import one.mixin.android.databinding.FragmentUpgradeBinding
 import one.mixin.android.db.runInTransaction
-import one.mixin.android.extension.defaultSharedPreferences
-import one.mixin.android.extension.putBoolean
 import one.mixin.android.extension.withArgs
 import one.mixin.android.ui.common.BaseFragment
 import one.mixin.android.ui.home.MainActivity
 import one.mixin.android.util.MessageFts4Helper
+import one.mixin.android.util.PropertyHelper
 import one.mixin.android.util.viewBinding
 
 @AndroidEntryPoint
@@ -55,7 +54,7 @@ class UpgradeFragment : BaseFragment(R.layout.fragment_upgrade) {
                 if (!done) {
                     viewModel.startSyncFts4Job()
                 }
-                defaultSharedPreferences.putBoolean(PREF_FTS4_UPGRADE, true)
+                PropertyHelper.updateKeyValue(requireContext(), PREF_FTS4_UPGRADE, true.toString())
                 MainActivity.show(requireContext())
                 activity?.finish()
             }
@@ -63,6 +62,7 @@ class UpgradeFragment : BaseFragment(R.layout.fragment_upgrade) {
             lifecycleScope.launch {
                 binding.pb.isIndeterminate = true
                 withContext(Dispatchers.IO) {
+                    PropertyHelper.checkMigrated(requireContext())
                     runInTransaction { }
                 }
                 MainActivity.show(requireContext())
