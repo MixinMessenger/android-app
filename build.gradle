@@ -89,7 +89,7 @@ buildscript {
         ext.autodisposeVersion = '1.4.0'
         ext.bugsnagVersion = '4.22.3'
         ext.jsoupVersion = '1.13.1'
-        ext.isoparserVersion = '1.0.6'
+        ext.isoparserVersion = '1.1.22'
         ext.largeImageViewVersion = '1.1.1'
         ext.webrtcVersion = '1.0.30039'
         ext.bitcoinPaymentURI = '1.0.3'
