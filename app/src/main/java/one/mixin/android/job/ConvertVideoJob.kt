@@ -101,7 +101,7 @@ class ConvertVideoJob(
         }
         val message = createVideoMessage(
             messageId, conversationId, senderId, category, null,
-            video.fileName, videoFile.toUri().toString(), video.duration, video.resultWidth,
+            video.fileName, videoFile.name, video.duration, video.resultWidth,
             video.resultHeight, video.thumbnail, "video/mp4",
             videoFile.length(), createdAt, null, null,
             if (error) MediaStatus.CANCELED else MediaStatus.PENDING,

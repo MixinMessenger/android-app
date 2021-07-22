@@ -50,7 +50,7 @@ class ConvertDataJob(
                 SendAttachmentMessageJob(
                     createAttachmentMessage(
                         message.id, message.conversationId, message.userId, message.category,
-                        null, message.name, Uri.fromFile(file).toString(),
+                        null, message.name, file.name,
                         message.mediaMimeType!!, message.mediaSize!!, message.createdAt, null,
                         null, MediaStatus.PENDING, MessageStatus.SENDING.name, message.quoteMessageId, message.quoteContent
                     )
