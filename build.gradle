@@ -95,7 +95,7 @@ buildscript {
         ext.bitcoinPaymentURI = '1.0.3'
         ext.svgVersion = '1.4'
         ext.startupVersion ='1.0.0'
-        ext.dnsVersion = '2.1.9'
+        ext.dnsVersion = '3.4.0'
         ext.appCenterSdkVersion = '4.2.0'
         ext.audioSwitchVersion = '1.1.2'
         ext.balloonVersion = '1.3.5'
