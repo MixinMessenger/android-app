@@ -52,6 +52,7 @@ interface MessageDao : BaseDao<Message> {
     @Query("$PREFIX_MESSAGE_ITEM WHERE m.conversation_id = :conversationId ORDER BY m.created_at DESC")
     fun getMessages(conversationId: String): DataSource.Factory<Int, MessageItem>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("$PREFIX_MESSAGE_ITEM WHERE m.conversation_id = :conversationId AND m.category IN $CHAT_CATEGORY ORDER BY m.created_at ASC LIMIT :limit OFFSET :offset")
     suspend fun getChatMessages(conversationId: String, offset: Int, limit: Int): List<MessageItem>
 
@@ -525,6 +526,7 @@ interface MessageDao : BaseDao<Message> {
         }
     }
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
         """
         SELECT m.id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId,
@@ -551,6 +553,7 @@ interface MessageDao : BaseDao<Message> {
     )
     fun observeMediaStatus(conversationId: String): LiveData<List<MessageIdIdAndMediaStatus>>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
         """
         SELECT m.id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId,
@@ -564,6 +567,7 @@ interface MessageDao : BaseDao<Message> {
     )
     suspend fun suspendFindMessagesByIds(conversationId: String, ids: List<String>): List<MessageItem>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("$PREFIX_MESSAGE_ITEM WHERE m.id = :messageId")
     fun findMessageItemByMessageId(messageId: String): LiveData<MessageItem?>
 

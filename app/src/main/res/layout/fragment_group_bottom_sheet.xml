@@ -43,9 +43,8 @@
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:layout_marginEnd="@dimen/activity_horizontal_margin"
                 android:layout_marginBottom="4dp"
-                android:ellipsize="end"
-                android:maxLength="30"
-                android:singleLine="true"
+                android:gravity="center_horizontal"
+                android:maxWidth="280dp"
                 android:textColor="?attr/text_primary"
                 android:textSize="18sp" />
 

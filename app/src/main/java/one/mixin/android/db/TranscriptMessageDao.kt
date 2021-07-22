@@ -3,6 +3,7 @@ package one.mixin.android.db
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.RoomWarnings
 import one.mixin.android.vo.TranscriptMessage
 import one.mixin.android.vo.TranscriptMessageItem
 
@@ -20,6 +21,7 @@ interface TranscriptMessageDao : BaseDao<TranscriptMessage> {
     @Query("SELECT count(*) FROM transcript_messages WHERE transcript_id = :transcriptId AND category IN ($ATTACHMENT_CATEGORY) AND media_status IN ('PENDING', 'CANCELED')")
     suspend fun hasUploadedAttachmentSuspend(transcriptId: String): Int
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query("SELECT * FROM transcript_messages WHERE transcript_id = :transcriptId")
     fun getTranscript(transcriptId: String): List<TranscriptMessage>
 
@@ -46,6 +48,7 @@ interface TranscriptMessageDao : BaseDao<TranscriptMessage> {
     @Query("UPDATE transcript_messages SET media_status = :mediaStatus WHERE transcript_id = :transcriptId AND message_id = :messageId")
     fun updateMediaStatus(transcriptId: String, messageId: String, mediaStatus: String)
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
         """
         SELECT t.transcript_id AS transcriptId, t.message_id AS messageId, t.user_id AS userId , IFNULL(u.full_name, t.user_full_name) AS userFullName, u.app_id AS appId, u.identity_number AS userIdentityNumber,
@@ -68,6 +71,7 @@ interface TranscriptMessageDao : BaseDao<TranscriptMessage> {
     @Query("SELECT count(*) FROM transcript_messages WHERE created_at < (SELECT created_at FROM transcript_messages WHERE transcript_id = :transcriptId AND message_id = :messageId)")
     suspend fun findTranscriptMessageIndex(transcriptId: String, messageId: String): Int
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
         """  SELECT t.transcript_id AS transcriptId, t.message_id AS messageId, t.user_id AS userId , IFNULL(u.full_name, t.user_full_name) AS userFullName, u.app_id AS appId, u.identity_number AS userIdentityNumber,
         t.category AS type, t.content, t.created_at AS createdAt, t.media_status AS mediaStatus, t.media_name AS mediaName, 

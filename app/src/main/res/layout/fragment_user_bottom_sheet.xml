@@ -46,9 +46,8 @@
                     android:id="@+id/name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:ellipsize="end"
+                    android:gravity="center_horizontal"
                     android:maxWidth="280dp"
-                    android:singleLine="true"
                     android:textColor="?attr/text_primary"
                     android:textSize="@dimen/bottom_name_text_size" />
 

@@ -116,12 +116,14 @@ interface UserDao : BaseDao<User> {
     @Query("SELECT * FROM users WHERE user_id IN (:userIds)")
     suspend fun findMultiUsersByIds(userIds: Set<String>): List<User>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
         """SELECT * FROM users u INNER JOIN participants p ON p.user_id = u.user_id
         WHERE p.conversation_id = :conversationId AND u.user_id IN (:userIds)"""
     )
     suspend fun findMultiCallUsersByIds(conversationId: String, userIds: Set<String>): List<CallUser>
 
+    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Query(
         """SELECT * FROM users u INNER JOIN participants p ON p.user_id = u.user_id
         WHERE p.conversation_id = :conversationId AND u.user_id = :userId"""
