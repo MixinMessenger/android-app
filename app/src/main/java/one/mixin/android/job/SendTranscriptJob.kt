@@ -1,7 +1,6 @@
 package one.mixin.android.job
 
 import android.net.Uri
-import androidx.core.net.toUri
 import com.birbit.android.jobqueue.Params
 import com.bugsnag.android.Bugsnag
 import one.mixin.android.MixinApplication
@@ -57,12 +56,12 @@ class SendTranscriptJob(
             messageDao.insert(message)
             transcriptMessages.forEach { transcript ->
                 if (transcript.isAttachment()) {
-                    val mediaUrl = transcript.mediaUrl
+                    val mediaUrl = Uri.parse(transcript.mediaUrl).path
                     if (mediaUrl == null) {
                         transcript.mediaUrl = null
                         transcript.mediaStatus = MediaStatus.DONE.name
                     } else {
-                        val file = File(Uri.parse(mediaUrl).path!!)
+                        val file = File(mediaUrl)
                         if (file.exists()) {
                             val outFile = MixinApplication.appContext.getTranscriptFile(
                                 transcript.messageId,
@@ -71,7 +70,7 @@ class SendTranscriptJob(
                             if (!outFile.exists() || outFile.length() <= 0) {
                                 file.copy(outFile)
                             }
-                            transcript.mediaUrl = outFile.toUri().toString()
+                            transcript.mediaUrl = outFile.name
                             transcript.mediaStatus = MediaStatus.CANCELED.name
                         } else {
                             transcript.mediaUrl = null

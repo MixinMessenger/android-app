@@ -24,6 +24,7 @@ import one.mixin.android.util.reportException
 import one.mixin.android.vo.AttachmentExtra
 import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.TranscriptMessage
+import one.mixin.android.vo.absolutePath
 import one.mixin.android.vo.isPlain
 import one.mixin.android.vo.isTranscript
 import one.mixin.android.vo.isValidAttachment
@@ -98,7 +99,7 @@ class SendTranscriptAttachmentMessageJob(
         }
         transcriptMessageDao.updateMediaStatus(transcriptMessage.transcriptId, transcriptMessage.messageId, MediaStatus.PENDING.name)
         disposable = conversationApi.requestAttachment().map {
-            val file = File(requireNotNull(Uri.parse(transcriptMessage.mediaUrl).path))
+            val file = File(requireNotNull(Uri.parse(transcriptMessage.absolutePath()).path))
             if (it.isSuccess && !isCancelled) {
                 val result = it.data!!
                 processAttachment(transcriptMessage, file, result)

@@ -12,7 +12,9 @@ import one.mixin.android.MixinApplication
 import one.mixin.android.R
 import one.mixin.android.extension.copyFromInputStream
 import one.mixin.android.extension.getFilePath
+import one.mixin.android.extension.getMediaPath
 import one.mixin.android.extension.getPublicPicturePath
+import one.mixin.android.extension.getTranscriptDirPath
 import one.mixin.android.extension.hasWritePermission
 import one.mixin.android.extension.isImageSupport
 import one.mixin.android.extension.toast
@@ -160,4 +162,14 @@ fun TranscriptMessageItem.toMessageItem(conversationId: String?): MessageItem {
         mentions = null,
         null
     )
+}
+
+fun TranscriptMessageItem.absolutePath(context: Context = MixinApplication.appContext): String? {
+    val mediaPath = context.getMediaPath()?.absolutePath ?: return null
+    val url = mediaUrl
+    return when {
+        url == null -> null
+        url.startsWith(mediaPath) -> url
+        else -> File(context.getTranscriptDirPath(), url).toUri().toString()
+    }
 }

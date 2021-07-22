@@ -1,6 +1,5 @@
 package one.mixin.android.job
 
-import android.net.Uri
 import androidx.core.net.toUri
 import com.birbit.android.jobqueue.Params
 import one.mixin.android.Constants
@@ -92,7 +91,7 @@ class AttachmentMigrationJob : BaseJob(Params(PRIORITY_LOWER).groupBy(GROUP_ID).
             }
             toFile ?: return@forEach
             fromFile.renameTo(toFile)
-            messageDao.updateMediaMessageUrl(Uri.fromFile(toFile).toString(), attachment.messageId)
+            messageDao.updateMediaMessageUrl(toFile.name, attachment.messageId)
         }
         preferences.putLong(PREF_ATTACHMENT_OFFSET, offset + list.size)
         Timber.d("Attachment migration handle ${offset + list.size} file cost: ${System.currentTimeMillis() - startTime} ms")

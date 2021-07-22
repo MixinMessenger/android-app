@@ -27,6 +27,7 @@ import one.mixin.android.util.video.MixinPlayer
 import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.Message
 import one.mixin.android.vo.MessageItem
+import one.mixin.android.vo.absolutePath
 import one.mixin.android.vo.isAudio
 import one.mixin.android.vo.isData
 import one.mixin.android.vo.mediaDownloaded
@@ -196,20 +197,20 @@ class AudioPlayer private constructor() {
         if (messageItem.mediaUrl == null) {
             MixinApplication.appContext.toast(R.string.error_bad_data)
             return
-        } else if (!messageItem.mediaUrl.fileExists()) {
+        } else if (!messageItem.absolutePath()!!.fileExists()) {
             MixinApplication.appContext.toast(R.string.error_file_exists)
             return
         }
         if (id != messageItem.messageId) {
             id = messageItem.messageId
             this.messageItem = messageItem
-            player.loadAudio(messageItem.mediaUrl)
+            player.loadAudio(messageItem.absolutePath()!!)
 
             if (autoPlayNext && messageItem.isAudio()) {
                 markAudioReadAndCheckNextAudioAvailable(messageItem, whenPlayNewAudioMessage)
             }
         } else if (status == STATUS_DONE || status == STATUS_ERROR) {
-            player.loadAudio(messageItem.mediaUrl)
+            player.loadAudio(messageItem.absolutePath()!!)
         }
         status = STATUS_PLAY
         player.start()

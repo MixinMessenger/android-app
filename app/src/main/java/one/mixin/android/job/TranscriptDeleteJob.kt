@@ -3,6 +3,7 @@ package one.mixin.android.job
 import android.net.Uri
 import com.birbit.android.jobqueue.Params
 import one.mixin.android.vo.TranscriptMessage
+import one.mixin.android.vo.absolutePath
 import one.mixin.android.vo.isAttachment
 import one.mixin.android.vo.isTranscript
 import java.io.File
@@ -22,7 +23,7 @@ class TranscriptDeleteJob(private val messageIds: List<String>) : BaseJob(Params
             transcriptMessageDao.getTranscript(messageId).forEach { transcriptMessage ->
                 if (transcriptMessage.isAttachment()) {
                     transcriptMessageDao.delete(transcriptMessage)
-                    transcriptMessage.mediaUrl?.let { url ->
+                    transcriptMessage.absolutePath()?.let { url ->
                         deleteAttachment(transcriptMessage.messageId, url)
                     }
                 } else if (transcriptMessage.isTranscript()) {
@@ -57,7 +58,7 @@ class TranscriptDeleteJob(private val messageIds: List<String>) : BaseJob(Params
                         return@forEach
                     } else {
                         if (t.isAttachment()) {
-                            t.mediaUrl?.let { url ->
+                            t.absolutePath()?.let { url ->
                                 deleteAttachment(transcriptMessage.messageId, url)
                             }
                         }

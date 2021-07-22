@@ -24,6 +24,7 @@ import one.mixin.android.ui.media.pager.PlayerView
 import one.mixin.android.util.VideoPlayer
 import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.TranscriptMessageItem
+import one.mixin.android.vo.absolutePath
 import one.mixin.android.vo.isLive
 import one.mixin.android.vo.loadVideoOrLive
 import one.mixin.android.widget.CircleProgress
@@ -105,7 +106,7 @@ class VideoHolder(
             binding.previewIv.loadImage(messageItem.thumbUrl, messageItem.thumbImage)
         } else {
             if (messageItem.mediaUrl != null) {
-                binding.previewIv.loadVideo(messageItem.mediaUrl)
+                binding.previewIv.loadVideo(messageItem.absolutePath())
             } else {
                 val imageData = messageItem.thumbImage?.decodeBase64()
                 Glide.with(itemView).load(imageData).into(binding.previewIv)

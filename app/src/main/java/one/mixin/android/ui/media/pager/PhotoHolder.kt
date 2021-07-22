@@ -17,6 +17,7 @@ import one.mixin.android.job.MixinJobManager.Companion.getAttachmentProcess
 import one.mixin.android.session.Session
 import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.MessageItem
+import one.mixin.android.vo.absolutePath
 import one.mixin.android.widget.CircleProgress
 import one.mixin.android.widget.PhotoView.PhotoView
 import one.mixin.android.widget.gallery.MimeType
@@ -32,7 +33,7 @@ class PhotoHolder(itemView: View) : MediaPagerHolder(itemView) {
         val circleProgress = itemView.findViewById<CircleProgress>(R.id.circle_progress)
         if (messageItem.mediaMimeType.equals(MimeType.GIF.toString(), true)) {
             imageView.loadGif(
-                messageItem.mediaUrl,
+                messageItem.absolutePath(),
                 object : RequestListener<GifDrawable?> {
                     override fun onResourceReady(
                         resource: GifDrawable?,
@@ -64,7 +65,7 @@ class PhotoHolder(itemView: View) : MediaPagerHolder(itemView) {
             )
         } else {
             imageView.loadImage(
-                messageItem.mediaUrl,
+                messageItem.absolutePath(),
                 messageItem.thumbImage,
                 object : RequestListener<Drawable?> {
                     override fun onResourceReady(

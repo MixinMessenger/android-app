@@ -44,13 +44,13 @@ class ConvertDataJob(
             val extensionName = message.name?.getExtensionName()
             val file = MixinApplication.appContext.getDocumentPath().createDocumentTemp(message.conversationId, message.id, extensionName)
             file.copyFromInputStream(inputStream)
-            messageDao.updateMediaMessageUrl(Uri.fromFile(file).toString(), message.id)
+            messageDao.updateMediaMessageUrl(file.name, message.id)
 
             jobManager.addJobInBackground(
                 SendAttachmentMessageJob(
                     createAttachmentMessage(
                         message.id, message.conversationId, message.userId, message.category,
-                        null, message.name, Uri.fromFile(file).toString(),
+                        null, message.name, file.name,
                         message.mediaMimeType!!, message.mediaSize!!, message.createdAt, null,
                         null, MediaStatus.PENDING, MessageStatus.SENDING.name, message.quoteMessageId, message.quoteContent
                     )

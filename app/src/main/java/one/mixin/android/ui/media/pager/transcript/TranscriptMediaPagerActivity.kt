@@ -72,6 +72,7 @@ import one.mixin.android.util.SystemUIManager
 import one.mixin.android.util.VideoPlayer
 import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.TranscriptMessageItem
+import one.mixin.android.vo.absolutePath
 import one.mixin.android.vo.isImage
 import one.mixin.android.vo.isLive
 import one.mixin.android.vo.isMedia
@@ -267,7 +268,7 @@ class TranscriptMediaPagerActivity : BaseActivity(), DismissFrameLayout.OnDismis
             bottomSheet.dismiss()
         }
         binding.share.setOnClickListener {
-            messageItem.mediaUrl?.let {
+            messageItem.absolutePath()?.let {
                 shareMedia(true, it)
             }
             bottomSheet.dismiss()
@@ -455,7 +456,7 @@ class TranscriptMediaPagerActivity : BaseActivity(), DismissFrameLayout.OnDismis
                 messageItem.messageId,
                 messageItem.isVideo(),
                 false, //
-                messageItem.mediaUrl
+                messageItem.absolutePath()
             )
 
             val videoTexture = view.findViewById<TextureView>(R.id.video_texture)
@@ -495,7 +496,7 @@ class TranscriptMediaPagerActivity : BaseActivity(), DismissFrameLayout.OnDismis
                         pipAnimationInProgress = false
                         if (messageItem.isVideo() && VideoPlayer.player().player.playbackState == Player.STATE_IDLE) {
                             VideoPlayer.player()
-                                .loadVideo(messageItem.mediaUrl!!, messageItem.messageId, true)
+                                .loadVideo(messageItem.absolutePath()!!, messageItem.messageId, true)
                             VideoPlayer.player().setVideoTextureView(changedTextureView)
                             VideoPlayer.player().pause()
                         } else {

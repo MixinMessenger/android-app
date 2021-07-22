@@ -16,6 +16,7 @@ import one.mixin.android.util.GsonHelper
 import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.MessageItem
 import one.mixin.android.vo.QuoteMessageItem
+import one.mixin.android.vo.absolutePath
 import one.mixin.android.vo.isSignal
 import org.jetbrains.anko.dip
 import kotlin.math.min
@@ -232,7 +233,7 @@ class ImageQuoteHolder constructor(val binding: ItemChatImageQuoteBinding) : Med
             binding.chatImage.layoutParams.height =
                 min(width * dataHeight / dataWidth, mediaHeight)
         }
-        binding.chatImage.loadLongImageMark(messageItem.mediaUrl, null)
+        binding.chatImage.loadLongImageMark(messageItem.absolutePath(), null)
 
         val isMe = meId == messageItem.userId
         if (isFirst && !isMe) {

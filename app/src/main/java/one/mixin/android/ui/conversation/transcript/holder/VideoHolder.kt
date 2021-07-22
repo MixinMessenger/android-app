@@ -25,6 +25,7 @@ import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.MessageCategory
 import one.mixin.android.vo.MessageStatus
 import one.mixin.android.vo.TranscriptMessageItem
+import one.mixin.android.vo.absolutePath
 import one.mixin.android.vo.isLive
 import org.jetbrains.anko.dip
 
@@ -201,7 +202,7 @@ class VideoHolder constructor(val binding: ItemChatVideoBinding) : MediaHolder(b
         dataUrl = if (messageItem.isLive()) {
             messageItem.thumbUrl
         } else {
-            messageItem.mediaUrl
+            messageItem.absolutePath()
         }
         type = messageItem.type
         dataThumbImage = messageItem.thumbImage

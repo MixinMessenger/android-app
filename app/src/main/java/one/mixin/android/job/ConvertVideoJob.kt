@@ -1,7 +1,6 @@
 package one.mixin.android.job
 
 import android.net.Uri
-import androidx.core.net.toUri
 import com.birbit.android.jobqueue.Params
 import one.mixin.android.MixinApplication
 import one.mixin.android.RxBus
@@ -101,14 +100,14 @@ class ConvertVideoJob(
         }
         val message = createVideoMessage(
             messageId, conversationId, senderId, category, null,
-            video.fileName, videoFile.toUri().toString(), video.duration, video.resultWidth,
+            video.fileName, videoFile.name, video.duration, video.resultWidth,
             video.resultHeight, video.thumbnail, "video/mp4",
             videoFile.length(), createdAt, null, null,
             if (error) MediaStatus.CANCELED else MediaStatus.PENDING,
             if (error) MessageStatus.FAILED.name else MessageStatus.SENDING.name
         )
         if (!error) {
-            messageDao.updateMediaMessageUrl(videoFile.toUri().toString(), messageId)
+            messageDao.updateMediaMessageUrl(videoFile.name, messageId)
             jobManager.addJobInBackground(SendAttachmentMessageJob(message))
         }
 

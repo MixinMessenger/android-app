@@ -76,6 +76,7 @@ import one.mixin.android.vo.SnakeQuoteMessageItem
 import one.mixin.android.vo.Sticker
 import one.mixin.android.vo.TranscriptMessage
 import one.mixin.android.vo.User
+import one.mixin.android.vo.absolutePath
 import one.mixin.android.vo.createAckJob
 import one.mixin.android.vo.createConversation
 import one.mixin.android.vo.generateConversationId
@@ -425,7 +426,7 @@ internal constructor(
             list.forEach { item ->
                 conversationRepository.deleteMessage(
                     item.messageId,
-                    item.mediaUrl,
+                    item.absolutePath(),
                     item.mediaStatus == MediaStatus.DONE.name
                 )
                 if (item.isTranscript()) {

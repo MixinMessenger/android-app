@@ -8,6 +8,7 @@ import one.mixin.android.extension.fileSize
 import one.mixin.android.ui.player.internal.AlbumArtCache.DEFAULT_ALBUM_ART
 import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.MessageItem
+import one.mixin.android.vo.absolutePath
 
 class ConversationLoader(
     private val database: MixinDatabase,
@@ -38,7 +39,7 @@ class ConversationLoader(
                     )
                 }
                 else -> {
-                    val url = m.mediaUrl ?: return@forEach
+                    val url = m.absolutePath() ?: return@forEach
                     val musicMeta = retrieveMetadata(m.messageId, url) ?: return@forEach
                     mediaMetadataCompats.add(
                         MediaMetadataCompat.Builder()
@@ -77,7 +78,7 @@ class ConversationLoader(
         title = titleString
         artist = subtitle
         album = conversationId
-        mediaUri = messageItem.mediaUrl
+        mediaUri = messageItem.absolutePath()
         flag = MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
         messageItem.mediaStatus?.let { s ->
             downloadStatus = getDownloadStatus(s)

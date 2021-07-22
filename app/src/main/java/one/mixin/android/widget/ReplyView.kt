@@ -20,6 +20,7 @@ import one.mixin.android.ui.conversation.holder.BaseViewHolder
 import one.mixin.android.util.mention.MentionRenderCache
 import one.mixin.android.vo.MessageCategory
 import one.mixin.android.vo.MessageItem
+import one.mixin.android.vo.absolutePath
 import one.mixin.android.vo.isAudio
 import one.mixin.android.vo.isContact
 import one.mixin.android.vo.isData
@@ -65,7 +66,7 @@ class ReplyView constructor(context: Context, attrs: AttributeSet) : ConstraintL
             messageItem.isImage() -> {
                 binding.replyViewTv.setText(R.string.photo)
                 setIcon(R.drawable.ic_type_pic)
-                binding.replyViewIv.loadImageCenterCrop(messageItem.mediaUrl, R.drawable.image_holder)
+                binding.replyViewIv.loadImageCenterCrop(messageItem.absolutePath(), R.drawable.image_holder)
                 (binding.replyViewTv.layoutParams as LayoutParams).endToStart = R.id.reply_view_iv
                 binding.replyViewIv.visibility = View.VISIBLE
                 binding.replyAvatar.visibility = View.GONE
@@ -73,7 +74,7 @@ class ReplyView constructor(context: Context, attrs: AttributeSet) : ConstraintL
             messageItem.isVideo() -> {
                 binding.replyViewTv.setText(R.string.video)
                 setIcon(R.drawable.ic_type_video)
-                binding.replyViewIv.loadImageCenterCrop(messageItem.mediaUrl, R.drawable.image_holder)
+                binding.replyViewIv.loadImageCenterCrop(messageItem.absolutePath(), R.drawable.image_holder)
                 (binding.replyViewTv.layoutParams as LayoutParams).endToStart = R.id.reply_view_iv
                 binding.replyViewIv.visibility = View.VISIBLE
                 binding.replyAvatar.visibility = View.GONE

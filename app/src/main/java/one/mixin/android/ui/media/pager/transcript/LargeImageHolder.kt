@@ -15,6 +15,7 @@ import one.mixin.android.job.MixinJobManager.Companion.getAttachmentProcess
 import one.mixin.android.session.Session
 import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.TranscriptMessageItem
+import one.mixin.android.vo.absolutePath
 import one.mixin.android.widget.CircleProgress
 import java.io.File
 
@@ -30,7 +31,7 @@ class LargeImageHolder(itemView: View) : MediaPagerHolder(itemView) {
         if (messageItem.mediaStatus == MediaStatus.DONE.name || messageItem.mediaStatus == MediaStatus.READ.name) {
             circleProgress.isVisible = false
             circleProgress.setBindId(messageItem.messageId)
-            messageItem.mediaUrl?.getFilePath()?.let { imageView.setImage(FileBitmapDecoderFactory(File(it))) }
+            messageItem.absolutePath()?.getFilePath()?.let { imageView.setImage(FileBitmapDecoderFactory(File(it))) }
         } else {
             val imageData = Base64.decode(messageItem.thumbImage, Base64.DEFAULT)
             imageView.setImage(BitmapFactory.decodeByteArray(imageData, 0, imageData.size))

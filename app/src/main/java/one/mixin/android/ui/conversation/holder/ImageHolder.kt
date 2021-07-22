@@ -20,6 +20,7 @@ import one.mixin.android.job.MixinJobManager.Companion.getAttachmentProcess
 import one.mixin.android.ui.conversation.adapter.ConversationAdapter
 import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.MessageItem
+import one.mixin.android.vo.absolutePath
 import one.mixin.android.vo.isSignal
 import one.mixin.android.widget.gallery.MimeType
 import org.jetbrains.anko.dip
@@ -184,7 +185,7 @@ class ImageHolder constructor(val binding: ItemChatImageBinding) : MediaHolder(b
 
         dataWidth = messageItem.mediaWidth
         dataHeight = messageItem.mediaHeight
-        dataUrl = messageItem.mediaUrl
+        dataUrl = messageItem.absolutePath()
         dataThumbImage = messageItem.thumbImage
         dataSize = messageItem.mediaSize
         isGif = messageItem.mediaMimeType.equals(MimeType.GIF.toString(), true)
