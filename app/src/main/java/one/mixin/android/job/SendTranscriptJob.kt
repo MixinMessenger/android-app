@@ -14,7 +14,6 @@ import one.mixin.android.util.MessageFts4Helper
 import one.mixin.android.vo.MediaStatus
 import one.mixin.android.vo.Message
 import one.mixin.android.vo.TranscriptMessage
-import one.mixin.android.vo.absolutePath
 import one.mixin.android.vo.isAttachment
 import one.mixin.android.vo.isContact
 import one.mixin.android.vo.isData
@@ -57,7 +56,7 @@ class SendTranscriptJob(
             messageDao.insert(message)
             transcriptMessages.forEach { transcript ->
                 if (transcript.isAttachment()) {
-                    val mediaUrl = transcript.mediaUrl
+                    val mediaUrl = Uri.parse(transcript.mediaUrl).path
                     if (mediaUrl == null) {
                         transcript.mediaUrl = null
                         transcript.mediaStatus = MediaStatus.DONE.name

@@ -1,7 +1,6 @@
 package one.mixin.android.job
 
 import android.net.Uri
-import androidx.core.net.toUri
 import com.birbit.android.jobqueue.Params
 import one.mixin.android.MixinApplication
 import one.mixin.android.RxBus

@@ -206,6 +206,7 @@ import one.mixin.android.vo.absolutePath
 import one.mixin.android.vo.canRecall
 import one.mixin.android.vo.generateConversationId
 import one.mixin.android.vo.giphy.Image
+import one.mixin.android.vo.isAttachment
 import one.mixin.android.vo.isAudio
 import one.mixin.android.vo.isLive
 import one.mixin.android.vo.isPlain
@@ -3045,7 +3046,15 @@ class ConversationFragment() :
             val messages = conversationAdapter.selectSet.filter { m -> !m.canNotForward() }
                 .sortedWith(compareBy { it.createdAt })
                 .map { it.toTranscript(transcriptId) }
-            if (messages.isNotEmpty()) {
+            val nonExistent = withContext(Dispatchers.IO) {
+                messages.filter { m -> m.isAttachment() }
+                    .mapNotNull { m -> Uri.parse(m.absolutePath()).path }.any { path ->
+                        !File(path).exists()
+                    }
+            }
+            if (nonExistent) {
+                toast(R.string.error_file_exists)
+            } else if (messages.isNotEmpty()) {
                 getCombineForwardContract.launch(ArrayList(messages))
             }
             closeTool()
